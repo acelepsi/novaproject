@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA PROJECT — Rebuild the World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c10; --surface:#0f1318; --panel:#141a22; --border:#1e2d3d;
+    --accent:#c8933a; --accent2:#3a8fc8; --accent3:#3ac87a; --danger:#c83a3a;
+    --text:#d4c9b8; --text-dim:#7a7060; --text-bright:#f0e8d5;
+    --glow:rgba(200,147,58,0.15); --active-color:#c8933a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:17px;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(30,45,61,0.22) 1px,transparent 1px),linear-gradient(90deg,rgba(30,45,61,0.22) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,147,58,0.06) 0%,transparent 60%),radial-gradient(ellipse at 0% 100%,rgba(58,143,200,0.05) 0%,transparent 50%);pointer-events:none;z-index:0;}
+  .screen{position:relative;z-index:1;}
+
+  @keyframes pulse{0%,100%{box-shadow:0 0 20px var(--glow),inset 0 0 20px var(--glow)}50%{box-shadow:0 0 50px rgba(200,147,58,0.3),inset 0 0 50px rgba(200,147,58,0.1)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes flicker{0%,100%{opacity:1}93%{opacity:0.8}94%{opacity:1}97%{opacity:0.9}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 10px var(--active-color)}50%{box-shadow:0 0 24px var(--active-color),0 0 4px var(--active-color)}}
+  @keyframes unlockPop{0%{transform:scale(0.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  @keyframes abilityFlash{0%{background:rgba(58,200,122,0.3)}100%{background:transparent}}
+
+  /* ===== INTRO ===== */
+  #screen-intro{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+  .logo-ring{width:120px;height:120px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 30px var(--glow),inset 0 0 30px var(--glow);display:flex;align-items:center;justify-content:center;margin:0 auto 30px;animation:pulse 3s ease-in-out infinite;position:relative;}
+  .logo-ring::before{content:'';position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(200,147,58,0.3);animation:spin 20s linear infinite;}
+  .logo-ring::after{content:'✦';font-size:40px;color:var(--accent);text-shadow:0 0 20px var(--accent);}
+  .title-main{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,6vw,3.8rem);color:var(--accent);text-shadow:0 0 40px rgba(200,147,58,0.5);letter-spacing:0.15em;animation:fadeUp 1s ease both,flicker 8s ease-in-out infinite;line-height:1.1;}
+  .title-sub{font-family:'Share Tech Mono',monospace;font-size:0.85rem;color:var(--accent2);letter-spacing:0.4em;margin-top:8px;animation:fadeUp 1s 0.3s ease both;}
+  .intro-divider{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:30px auto;animation:fadeUp 1s 0.5s ease both;}
+  .intro-lore{max-width:650px;font-style:italic;color:var(--text-dim);font-size:1.05rem;line-height:1.8;animation:fadeUp 1s 0.7s ease both;}
+  .intro-lore strong{color:var(--text);font-style:normal;}
+  .intro-box{margin-top:30px;background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--accent);padding:25px 30px;max-width:640px;width:100%;text-align:left;animation:fadeUp 1s 1s ease both;}
+  .intro-box h3{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:0.75rem;letter-spacing:0.3em;margin-bottom:6px;}
+  .intro-hint{font-size:0.82rem;color:var(--text-dim);font-style:italic;margin-bottom:16px;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .role-card{background:var(--surface);border:1px solid var(--border);padding:14px;cursor:pointer;transition:all 0.2s;position:relative;}
+  .role-card:hover{border-color:var(--accent);background:rgba(200,147,58,0.05);}
+  .role-card.selected{border-color:var(--accent);background:rgba(200,147,58,0.08);}
+  .order-badge{position:absolute;top:8px;right:10px;font-family:'Share Tech Mono',monospace;font-size:0.68rem;background:var(--accent);color:var(--bg);padding:1px 7px;border-radius:2px;display:none;}
+  .role-card.selected .order-badge{display:inline-block;}
+  .role-name{font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:var(--accent2);margin-bottom:3px;}
+  .role-ability-tag{font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--accent3);margin-bottom:5px;opacity:0.8;}
+  .role-desc{font-size:0.84rem;color:var(--text-dim);font-style:italic;}
+
+  /* ===== BUTTONS ===== */
+  .btn{display:inline-block;padding:13px 30px;font-family:'Share Tech Mono',monospace;font-size:0.8rem;letter-spacing:0.18em;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;transition:all 0.2s;text-transform:uppercase;position:relative;overflow:hidden;}
+  .btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:-1;}
+  .btn:hover{color:var(--bg);}
+  .btn:hover::before{transform:scaleX(1);}
+  .btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .btn:disabled:hover{color:var(--accent);}
+  .btn:disabled:hover::before{transform:scaleX(0);}
+  .btn-blue{border-color:var(--accent2);color:var(--accent2);}
+  .btn-blue::before{background:var(--accent2);}
+  .btn-green{border-color:var(--accent3);color:var(--accent3);}
+  .btn-green::before{background:var(--accent3);}
+  .btn-sm{padding:8px 16px;font-size:0.7rem;}
+
+  /* ===== GAME SCREEN ===== */
+  #screen-game{display:none;min-height:100vh;}
+  .game-header{background:var(--panel);border-bottom:1px solid var(--border);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100;}
+  .game-title-small{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--accent);text-shadow:0 0 15px rgba(200,147,58,0.4);}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .round-badge{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--text-dim);letter-spacing:0.18em;}
+
+  /* Teacher mode toggle */
+  .teacher-toggle{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:0.15em;cursor:pointer;padding:6px 12px;border:1px solid var(--border);transition:all 0.2s;}
+  .teacher-toggle:hover,.teacher-toggle.active{border-color:var(--accent2);color:var(--accent2);}
+  .teacher-toggle.active{background:rgba(58,143,200,0.08);}
+
+  .meters-bar{background:var(--panel);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+  .meter-group{display:flex;align-items:center;gap:8px;flex:1;min-width:128px;}
+  .meter-label{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:0.1em;width:72px;flex-shrink:0;}
+  .meter-track{flex:1;height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
+  .meter-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+  .meter-val{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);width:24px;text-align:right;}
+
+  .game-body{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 112px);}
+  @media(max-width:700px){.game-body{grid-template-columns:1fr}.sidebar{display:none}}
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px 13px;}
+  .sidebar-label{font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.26em;color:var(--text-dim);margin-bottom:9px;}
+  .sidebar-section{margin-bottom:20px;}
+  .player-chip{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;margin-bottom:6px;background:var(--panel);border:1px solid var(--border);border-radius:2px;font-size:0.82rem;transition:all 0.3s;position:relative;}
+  .player-chip.active-turn{border-color:var(--active-color);background:rgba(200,147,58,0.05);animation:glowPulse 2s ease-in-out infinite;}
+  .player-chip.done-turn{opacity:0.42;}
+  .player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+  .player-name-line{font-family:'Share Tech Mono',monospace;font-size:0.68rem;}
+  .player-title-line{font-size:0.7rem;color:var(--text-dim);}
+  .ability-pip{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--accent3);margin-top:2px;}
+  .ability-pip.used{color:var(--text-dim);text-decoration:line-through;}
+  .turn-arrow{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--active-color);}
+  .player-chip.active-turn .turn-arrow{display:block;}
+
+  /* Unlocks in sidebar */
+  .unlock-chip{display:flex;align-items:center;gap:7px;padding:6px 9px;margin-bottom:5px;background:rgba(58,200,122,0.06);border:1px solid rgba(58,200,122,0.25);font-size:0.75rem;color:var(--accent3);animation:unlockPop 0.4s ease;}
+  .unlock-chip-icon{font-size:0.8rem;}
+
+  .event-log{max-height:165px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+  .log-entry{font-size:0.73rem;color:var(--text-dim);padding:4px 0;border-bottom:1px solid rgba(30,45,61,0.5);line-height:1.4;}
+  .log-entry.good{color:var(--accent3);}
+  .log-entry.bad{color:var(--danger);}
+  .log-entry.neutral{color:var(--accent2);}
+  .log-entry.unlock{color:#c8e83a;}
+  .log-entry.ability{color:var(--accent3);font-weight:bold;}
+  .total-score-box{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--accent);text-align:center;padding:9px;background:var(--panel);border:1px solid var(--border);}
+
+  /* ===== MAIN AREA ===== */
+  .main-area{padding:24px 26px 40px;display:flex;flex-direction:column;gap:15px;}
+
+  .active-player-banner{display:flex;align-items:flex-start;gap:14px;padding:13px 18px;border:1px solid var(--border);background:var(--panel);border-left:4px solid var(--active-color);animation:slideIn 0.4s ease;transition:border-left-color 0.4s;}
+  .apb-avatar{width:44px;height:44px;border-radius:50%;border:2px solid var(--active-color);display:flex;align-items:center;justify-content:center;font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--active-color);background:var(--surface);box-shadow:0 0 12px var(--active-color);flex-shrink:0;transition:all 0.4s;}
+  .apb-label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--text-dim);letter-spacing:0.22em;margin-bottom:3px;}
+  .apb-name{font-family:'Share Tech Mono',monospace;font-size:0.86rem;margin-bottom:4px;transition:color 0.4s;}
+  .apb-perspective{font-style:italic;font-size:0.86rem;color:var(--text-dim);line-height:1.55;}
+
+  /* Ability button */
+  .ability-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;border:1px solid var(--accent3);color:var(--accent3);background:rgba(58,200,122,0.05);cursor:pointer;transition:all 0.2s;margin-top:8px;text-transform:uppercase;}
+  .ability-btn:hover{background:rgba(58,200,122,0.12);}
+  .ability-btn.used{border-color:var(--text-dim);color:var(--text-dim);cursor:not-allowed;opacity:0.45;}
+  .ability-btn.used:hover{background:transparent;}
+  .ability-btn-icon{font-size:0.9rem;}
+
+  .location-tag{font-family:'Share Tech Mono',monospace;font-size:0.64rem;color:var(--accent2);letter-spacing:0.2em;display:flex;align-items:center;gap:8px;}
+  .location-tag::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:blink 1.5s ease-in-out infinite;}
+
+  /* Unlock notification banner */
+  .unlock-notification{background:rgba(58,200,122,0.08);border:1px solid rgba(58,200,122,0.35);border-left:4px solid var(--accent3);padding:12px 18px;display:none;animation:unlockPop 0.5s ease;}
+  .unlock-notification.visible{display:flex;align-items:center;gap:12px;}
+  .unlock-icon{font-size:1.4rem;}
+  .unlock-title{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--accent3);letter-spacing:0.15em;margin-bottom:3px;}
+  .unlock-desc{font-size:0.84rem;color:var(--text-dim);font-style:italic;}
+
+  /* Scenario required unlock tag */
+  .unlock-required-tag{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#c8e83a;letter-spacing:0.2em;margin-bottom:8px;opacity:0.8;}
+
+  .scenario-card{background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--active-color);padding:26px;position:relative;overflow:hidden;transition:border-top-color 0.4s;}
+  .scenario-card::before{content:'';position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle at top right,rgba(200,147,58,0.05),transparent);pointer-events:none;}
+  .scenario-theme{font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.26em;color:var(--accent);margin-bottom:8px;opacity:0.7;}
+  .scenario-title{font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--text-bright);margin-bottom:11px;line-height:1.3;}
+  .scenario-narrative{color:var(--text);line-height:1.85;font-size:0.97rem;margin-bottom:14px;font-style:italic;}
+  .scenario-question{color:var(--text-bright);font-weight:600;font-size:0.99rem;line-height:1.6;border-left:2px solid var(--active-color);padding-left:14px;transition:border-left-color 0.4s;}
+
+  /* Teacher notes panel */
+  .teacher-notes{background:rgba(58,143,200,0.07);border:1px solid rgba(58,143,200,0.3);border-left:4px solid var(--accent2);padding:16px 20px;display:none;}
+  .teacher-notes.visible{display:block;animation:fadeUp 0.3s ease;}
+  .teacher-notes h4{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent2);letter-spacing:0.22em;margin-bottom:12px;}
+  .tn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+  @media(max-width:600px){.tn-row{grid-template-columns:1fr}}
+  .tn-block{background:rgba(58,143,200,0.05);border:1px solid rgba(58,143,200,0.15);padding:10px 13px;}
+  .tn-label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--accent2);letter-spacing:0.15em;margin-bottom:5px;opacity:0.8;}
+  .tn-text{font-size:0.83rem;color:var(--text-dim);line-height:1.55;}
+
+  .choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  @media(max-width:620px){.choices-grid{grid-template-columns:1fr}}
+  .choice-btn{background:var(--surface);border:1px solid var(--border);padding:14px 15px;cursor:pointer;text-align:left;transition:all 0.2s;color:var(--text);font-family:'Crimson Pro',serif;font-size:0.91rem;line-height:1.5;position:relative;}
+  .choice-btn:hover{border-color:var(--accent2);background:rgba(58,143,200,0.05);transform:translateX(2px);}
+  .choice-btn.selected{border-color:var(--active-color);background:rgba(200,147,58,0.07);}
+  .choice-btn.revealed-good{border-color:var(--accent3);background:rgba(58,200,122,0.07);cursor:default;transform:none;}
+  .choice-btn.revealed-bad{border-color:var(--danger);background:rgba(200,58,58,0.07);cursor:default;transform:none;}
+  .choice-btn.locked{opacity:0.35;cursor:not-allowed;border-style:dashed;}
+  .choice-btn.locked:hover{transform:none;border-color:var(--border);background:var(--surface);}
+  .choice-letter{font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);margin-bottom:5px;display:block;}
+  .choice-lock-tag{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--text-dim);margin-top:5px;display:block;}
+
+  .vote-panel{background:rgba(200,147,58,0.04);border:1px solid rgba(200,147,58,0.22);border-left:3px solid var(--accent);padding:17px 21px;}
+  .vote-panel h4{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.22em;margin-bottom:9px;}
+  .vote-instruction{font-size:0.87rem;color:var(--text-dim);font-style:italic;margin-bottom:13px;line-height:1.6;}
+
+  .discussion-panel{background:rgba(58,143,200,0.04);border:1px solid rgba(58,143,200,0.22);border-left:3px solid var(--accent2);padding:17px 21px;}
+  .discussion-panel h4{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent2);letter-spacing:0.22em;margin-bottom:9px;}
+  .discussion-panel ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .discussion-panel li{color:var(--text-dim);font-style:italic;font-size:0.87rem;padding-left:16px;position:relative;line-height:1.55;}
+  .discussion-panel li::before{content:'▸';position:absolute;left:0;color:var(--accent2);}
+
+  .outcome-panel{background:var(--panel);border:1px solid var(--border);padding:21px;display:none;}
+  .outcome-panel.visible{display:block;animation:fadeUp 0.4s ease;}
+  .outcome-header{font-family:'Cinzel Decorative',serif;font-size:1rem;margin-bottom:11px;}
+  .outcome-header.good{color:var(--accent3);}
+  .outcome-header.bad{color:var(--danger);}
+  .outcome-header.mixed{color:var(--accent);}
+  .outcome-text{color:var(--text);line-height:1.75;margin-bottom:13px;}
+  .score-change{font-family:'Share Tech Mono',monospace;font-size:0.74rem;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .score-tag{padding:3px 8px;border-radius:2px;font-size:0.68rem;}
+  .score-tag.pos{background:rgba(58,200,122,0.12);color:var(--accent3);border:1px solid rgba(58,200,122,0.3);}
+  .score-tag.neg{background:rgba(200,58,58,0.12);color:var(--danger);border:1px solid rgba(200,58,58,0.3);}
+
+  /* Micro narrative feedback */
+  .micro-feedback{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--text-dim);font-style:italic;letter-spacing:0.05em;padding:8px 0;border-top:1px solid var(--border);margin-top:8px;}
+  .micro-feedback.pos{color:var(--accent3);}
+  .micro-feedback.neg{color:var(--danger);}
+
+  /* ===== END SCREEN ===== */
+  #screen-end{display:none;min-height:100vh;align-items:center;justify-content:center;padding:40px 20px;flex-direction:column;text-align:center;}
+  .end-verdict{font-family:'Cinzel Decorative',serif;font-size:clamp(1.5rem,5vw,3rem);margin-bottom:12px;animation:fadeUp 0.8s ease;}
+  .end-score-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;max-width:460px;width:100%;margin:22px auto;}
+  .end-score-card{background:var(--panel);border:1px solid var(--border);padding:15px;animation:fadeUp 0.8s ease both;}
+  .end-score-card .label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--text-dim);letter-spacing:0.16em;margin-bottom:7px;}
+  .end-score-card .val{font-family:'Cinzel Decorative',serif;font-size:1.7rem;}
+  .end-player-scores{max-width:460px;width:100%;margin:0 auto 20px;}
+  .eps-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border:1px solid var(--border);margin-bottom:5px;background:var(--panel);animation:fadeUp 0.6s ease both;}
+  .eps-name{font-family:'Share Tech Mono',monospace;font-size:0.75rem;}
+  .eps-score{font-family:'Cinzel Decorative',serif;font-size:1.05rem;}
+  .end-unlocks{max-width:460px;width:100%;margin:0 auto 20px;text-align:left;}
+  .end-unlock-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid rgba(58,200,122,0.25);margin-bottom:5px;background:rgba(58,200,122,0.05);}
+  .end-reflection{max-width:580px;background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--accent2);padding:22px;margin:0 auto 24px;text-align:left;animation:fadeUp 0.8s 0.4s ease both;}
+  .end-reflection h3{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent2);letter-spacing:0.2em;margin-bottom:13px;}
+  .end-reflection p{color:var(--text-dim);font-style:italic;line-height:1.8;}
+
+  /* Print styles */
+  @media print{
+    body{background:#fff;color:#000;}
+    body::before,body::after{display:none;}
+    #screen-game,#screen-intro{display:none!important;}
+    #screen-end{display:block!important;padding:20px;}
+    .end-verdict{color:#000!important;}
+    .end-score-card,.eps-row,.end-unlock-row,.end-reflection{border-color:#ccc;background:#fff;}
+    .btn{display:none;}
+    .end-reflection p,.eps-name,.label{color:#333;}
+  }
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO ===== -->
+<div id="screen-intro" class="screen">
+  <div class="logo-ring"></div>
+  <div class="title-main">NOVA PROJECT</div>
+  <div class="title-sub">REBUILD · RESIST · RESTORE</div>
+  <div class="intro-divider"></div>
+  <p class="intro-lore">
+    The year is <strong>2157</strong>. The city of <strong>Novara</strong> has fallen under the rule of the Silence Bureau — a regime that erased diversity, outlawed dissent, and replaced education with obedience.<br><br>
+    A fragile resistance is forming. <strong>Four citizens</strong> from opposite walks of life have found each other. Together, they must navigate a city broken by fear, inequality, and division — and rebuild it into something worth living in.
+  </p>
+  <div class="intro-box">
+    <h3>// ASSEMBLE YOUR TEAM</h3>
+    <p class="intro-hint">Select 2–4 characters — one per real player. Click order becomes turn order. Each character has a unique one-time special ability.</p>
+    <div class="role-grid" id="role-grid">
+      <div class="role-card" data-role="0" onclick="toggleRole(this)">
+        <span class="order-badge" id="ob-0"></span>
+        <div class="role-name">KIRA — The Teacher</div>
+        <div class="role-ability-tag">⚡ ABILITY: Boosts Trust +10 when leading education scenarios</div>
+        <div class="role-desc">Former educator. Believes knowledge is freedom. Working-class background.</div>
+      </div>
+      <div class="role-card" data-role="1" onclick="toggleRole(this)">
+        <span class="order-badge" id="ob-1"></span>
+        <div class="role-name">DAAN — The Refugee</div>
+        <div class="role-ability-tag">⚡ ABILITY: Boosts Solidarity +10 when helping displaced people</div>
+        <div class="role-desc">Fled conflict in the Northern Zones. Understands loss and belonging deeply.</div>
+      </div>
+      <div class="role-card" data-role="2" onclick="toggleRole(this)">
+        <span class="order-badge" id="ob-2"></span>
+        <div class="role-name">YARA — The Activist</div>
+        <div class="role-ability-tag">⚡ ABILITY: Boosts Freedom +10 when organising public action</div>
+        <div class="role-desc">Grew up wealthy. Chose conscience over comfort. Organises resistance networks.</div>
+      </div>
+      <div class="role-card" data-role="3" onclick="toggleRole(this)">
+        <span class="order-badge" id="ob-3"></span>
+        <div class="role-name">LUCA — The Engineer</div>
+        <div class="role-ability-tag">⚡ ABILITY: Reduces negative score on infrastructure choices by 50%</div>
+        <div class="role-desc">Builds things. Practical and skeptical. Grew up in the slums of Sector 9.</div>
+      </div>
+    </div>
+    <div style="margin-top:18px;text-align:center;">
+      <button class="btn" onclick="startGame()" id="start-btn" disabled>SELECT 2–4 CHARACTERS</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <span class="game-title-small">NOVA PROJECT</span>
+    <div class="header-right">
+      <span class="round-badge" id="round-badge">SCENARIO 1 / 8</span>
+      <span class="teacher-toggle" id="teacher-toggle" onclick="toggleTeacherMode()">📋 TEACHER MODE</span>
+      <button class="btn btn-blue btn-sm" onclick="if(confirm('Restart the mission?'))showIntro()">← RESTART</button>
+    </div>
+  </div>
+  <div class="meters-bar">
+    <div class="meter-group">
+      <span class="meter-label">EQUALITY</span>
+      <div class="meter-track"><div class="meter-fill" id="m-equality" style="width:40%;background:linear-gradient(90deg,#c83a3a,#c8933a)"></div></div>
+      <span class="meter-val" id="mv-equality">40</span>
+    </div>
+    <div class="meter-group">
+      <span class="meter-label">TRUST</span>
+      <div class="meter-track"><div class="meter-fill" id="m-trust" style="width:35%;background:linear-gradient(90deg,#3a8fc8,#3ac87a)"></div></div>
+      <span class="meter-val" id="mv-trust">35</span>
+    </div>
+    <div class="meter-group">
+      <span class="meter-label">FREEDOM</span>
+      <div class="meter-track"><div class="meter-fill" id="m-freedom" style="width:30%;background:linear-gradient(90deg,#7a3ac8,#3a8fc8)"></div></div>
+      <span class="meter-val" id="mv-freedom">30</span>
+    </div>
+    <div class="meter-group">
+      <span class="meter-label">SOLIDARITY</span>
+      <div class="meter-track"><div class="meter-fill" id="m-solidarity" style="width:45%;background:linear-gradient(90deg,#c8933a,#3ac87a)"></div></div>
+      <span class="meter-val" id="mv-solidarity">45</span>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">// TEAM — TURN ORDER</div>
+        <div id="player-list"></div>
+      </div>
+      <div class="sidebar-section" id="unlocks-section" style="display:none">
+        <div class="sidebar-label">// UNLOCKED ASSETS</div>
+        <div id="unlocks-list"></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">// MISSION LOG</div>
+        <div class="event-log" id="event-log">
+          <div class="log-entry neutral">Mission started. Novara awaits.</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">// SOCIETY HEALTH</div>
+        <div class="total-score-box" id="total-score-display">150</div>
+        <div style="font-size:0.62rem;color:var(--text-dim);text-align:center;margin-top:4px;font-family:'Share Tech Mono',monospace;">/ 400 TOTAL</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-area">
+
+      <!-- Active player banner -->
+      <div class="active-player-banner" id="active-player-banner">
+        <div class="apb-avatar" id="apb-avatar">K</div>
+        <div style="flex:1">
+          <div class="apb-label">ACTIVE PLAYER — IT'S YOUR TURN</div>
+          <div class="apb-name" id="apb-name">KIRA</div>
+          <div class="apb-perspective" id="apb-perspective"></div>
+          <div id="ability-btn-container"></div>
+        </div>
+      </div>
+
+      <!-- Unlock notification -->
+      <div class="unlock-notification" id="unlock-notification">
+        <div class="unlock-icon" id="unlock-icon">🔓</div>
+        <div>
+          <div class="unlock-title" id="unlock-title">ASSET UNLOCKED</div>
+          <div class="unlock-desc" id="unlock-desc"></div>
+        </div>
+      </div>
+
+      <div class="location-tag" id="location-tag">SECTOR 4</div>
+
+      <!-- Teacher notes -->
+      <div class="teacher-notes" id="teacher-notes">
+        <h4>// TEACHER NOTES — SCENARIO GUIDE</h4>
+        <div class="tn-row">
+          <div class="tn-block"><div class="tn-label">LEARNING GOALS</div><div class="tn-text" id="tn-goals"></div></div>
+          <div class="tn-block"><div class="tn-label">SUGGESTED TIME</div><div class="tn-text" id="tn-time"></div></div>
+        </div>
+        <div class="tn-row">
+          <div class="tn-block"><div class="tn-label">KEY CONCEPTS</div><div class="tn-text" id="tn-concepts"></div></div>
+          <div class="tn-block"><div class="tn-label">ASSESSMENT RUBRIC</div><div class="tn-text" id="tn-rubric"></div></div>
+        </div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-theme" id="scenario-theme"></div>
+        <div class="unlock-required-tag" id="unlock-required-tag" style="display:none"></div>
+        <div class="scenario-title" id="scenario-title"></div>
+        <div class="scenario-narrative" id="scenario-narrative"></div>
+        <div class="scenario-question" id="scenario-question"></div>
+      </div>
+
+      <div class="choices-grid" id="choices-grid"></div>
+
+      <div class="vote-panel" id="vote-panel" style="display:none">
+        <h4>// CHOICE PROPOSED — NOW THE GROUP VOTES</h4>
+        <div class="vote-instruction" id="vote-instruction"></div>
+        <button class="btn" onclick="confirmGroupChoice()">CONFIRM GROUP DECISION →</button>
+      </div>
+
+      <div class="discussion-panel" id="discussion-panel">
+        <h4>// GROUP DISCUSSION — BEFORE YOU CHOOSE</h4>
+        <ul id="discussion-questions"></ul>
+      </div>
+
+      <div class="outcome-panel" id="outcome-panel">
+        <div class="outcome-header" id="outcome-header"></div>
+        <div class="outcome-text" id="outcome-text"></div>
+        <div class="score-change" id="score-change"></div>
+        <div class="micro-feedback" id="micro-feedback"></div>
+        <div id="meter-narrative" style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.05em;padding:8px 0;border-top:1px solid var(--border);margin-top:4px;line-height:1.8;"></div>
+        <div id="outcome-actions" style="margin-top:14px"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== END SCREEN ===== -->
+<div id="screen-end" class="screen" style="display:none;flex-direction:column;">
+  <div class="logo-ring" style="width:80px;height:80px;margin-bottom:20px;"></div>
+  <div class="end-verdict" id="end-verdict"></div>
+  <div style="font-size:0.93rem;color:var(--text-dim);font-style:italic;margin-bottom:18px;" id="end-subtitle"></div>
+  <div class="end-score-grid" id="end-score-grid"></div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);letter-spacing:0.18em;margin-bottom:8px;text-align:left;max-width:460px;width:100%;">// INDIVIDUAL CONTRIBUTIONS</div>
+  <div class="end-player-scores" id="end-player-scores"></div>
+  <div id="end-unlocks-section" style="display:none;max-width:460px;width:100%;margin:0 auto 16px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);letter-spacing:0.18em;margin-bottom:8px;text-align:left;">// ASSETS UNLOCKED THIS RUN</div>
+    <div class="end-unlocks" id="end-unlocks"></div>
+  </div>
+  <div class="end-reflection" id="end-reflection"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
+    <button class="btn btn-green btn-sm" onclick="window.print()">🖨 PRINT REFLECTION</button>
+    <button class="btn btn-sm" onclick="showIntro()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+
+const ROLES = [
+  {
+    id:0, name:"KIRA", title:"The Teacher", color:"#c8933a", initial:"K",
+    ability:{
+      id:'teach', icon:'📚',
+      label:'EDUCATOR\'S INSIGHT',
+      desc:'Boosts Trust +10 on the active education scenario.',
+      trigger:'education',  // scenario tag that activates it
+      effect:{trust:10},
+      used:false
+    },
+    perspective:{
+      discrimination:"As a teacher, Kira sees the vendor not as a monster but as a product of Bureau conditioning. She knows silence teaches its own lesson — that injustice is acceptable.",
+      censorship:"Kira thinks of her students. What does a censored generation become? She has felt the weight of every page she was forbidden to teach.",
+      rights:"She once wrote the names of the disappeared on her classroom wall. The Bureau made her take them down. She never forgot a single one.",
+      economy:"She grew up working-class. She knows what it means to have just barely enough — and to watch others have nothing at all.",
+      tolerance:"Kira has taught students of every origin. She knows how fast 'different' becomes 'dangerous' in frightened communities.",
+      broadcast:"Kira thinks of every civics lesson she gave before the Bureau silenced her classroom. This is what all of that was for.",
+      justice:"She documented every case she could. She has been waiting for this moment.",
+      infrastructure:"She knows what happens to communities when their foundations are taken away. She has seen it.",
+      media:"Kira spent years teaching critical thinking before the Bureau removed it from the curriculum. She knows exactly why this is dangerous.",
+      surveillance:"She remembers when teachers were given a list of students to 'report on.' She refused. She never forgot the feeling.",
+      voting:"She taught civic education. She knows what democracy requires — and what it loses when people are excluded.",
+      gender:"She has watched brilliant women go quiet in classrooms, in meetings, in hallways. She knows what is being lost.",
+      climate:"She taught her students that the world they inherit is being shaped by decisions made today. She meant it."
+    }
+  },
+  {
+    id:1, name:"DAAN", title:"The Refugee", color:"#3a8fc8", initial:"D",
+    ability:{
+      id:'empathy', icon:'🤝',
+      label:'LIVED EXPERIENCE',
+      desc:'Boosts Solidarity +10 when helping displaced or marginalised people.',
+      trigger:'tolerance',
+      effect:{solidarity:10},
+      used:false
+    },
+    perspective:{
+      discrimination:"Daan has worn an armband like that. He knows what it feels like to be refused — not just food, but dignity. His hands are shaking slightly.",
+      censorship:"In his homeland, they burned the books first. Then the schools. Then the people. He knows this sequence by heart.",
+      rights:"Daan was taken once — for a week, no charges, no trial. He came back. Not everyone did.",
+      economy:"He arrived in Novara with nothing. Strangers fed him. He has never forgotten that.",
+      tolerance:"Daan is Aris in another story. He knows what it costs to arrive somewhere and be seen as a problem, not a person.",
+      broadcast:"Daan has dreamed of a broadcast like this. A voice cutting through the silence: you are not forgotten.",
+      justice:"He carries a list of names in his coat. People the Bureau made disappear. This trial matters.",
+      infrastructure:"He has rebuilt from nothing before. He knows what is essential and what is not.",
+      media:"He has seen false stories destroy communities in his homeland. He knows how quickly people believe what they are told.",
+      surveillance:"He grew up being watched. Every border, every checkpoint, every officer with a list. He knows this feeling well.",
+      voting:"In his country, the vote existed. But only some people's votes were counted. He knows the difference between voting and being heard.",
+      gender:"He saw women in his community lose their voices one by one. He did not speak up then. He will now.",
+      climate:"The river in his homeland dried up. Then the crops failed. Then the people left. He knows how this story goes."
+    }
+  },
+  {
+    id:2, name:"YARA", title:"The Activist", color:"#3ac87a", initial:"Y",
+    ability:{
+      id:'organise', icon:'✊',
+      label:'NETWORK ACTIVATION',
+      desc:'Boosts Freedom +10 when organising public or collective action.',
+      trigger:'broadcast',
+      effect:{freedom:10},
+      used:false
+    },
+    perspective:{
+      discrimination:"Yara grew up in the Upper Districts where this kind of exclusion was invisible. Visible injustice now feels like a personal debt that needs repaying.",
+      censorship:"She built her first underground library at sixteen. She knows exactly how many books it took to change a mind.",
+      rights:"Yara has organised vigils for the disappeared. She carries their names in a worn notebook.",
+      economy:"She ran food distribution networks before the Bureau criminalised them. She knows how to rebuild them faster this time.",
+      tolerance:"Yara's first act of resistance was welcoming a family the Bureau labelled 'undesirable' into her home. It changed everything.",
+      broadcast:"She has written this speech a hundred times in her head. The core is always: we are not what they say we are.",
+      justice:"This is what organising is for. Not just the street — but the courtroom.",
+      infrastructure:"She has seen how quickly people abandon principles when the water stops running. Infrastructure is politics.",
+      media:"She has spent years learning how stories are shaped. She knows that the most dangerous lies are the ones that feel almost true.",
+      surveillance:"Her network was destroyed once by a single spy. She has never forgotten what it costs to be watched.",
+      voting:"She knocked on doors for months to get people registered. She knows that participation is not just a right — it is a muscle.",
+      gender:"She grew up watching her mother shrink herself in every room. She promised herself she would not do the same.",
+      climate:"She has seen the fields outside Novara. She knows the environmental damage did not happen by accident. Someone chose it."
+    }
+  },
+  {
+    id:3, name:"LUCA", title:"The Engineer", color:"#c83a7a", initial:"L",
+    ability:{
+      id:'mitigate', icon:'🔧',
+      label:'RISK MITIGATION',
+      desc:'Reduces negative score penalties by 50% on this infrastructure scenario.',
+      trigger:'infrastructure',
+      effect:'mitigation',  // special: halves bad scores
+      used:false
+    },
+    perspective:{
+      discrimination:"Luca calculates risk versus impact like a blueprint. He grew up in Sector 9 — you act smart, or you do not act at all.",
+      censorship:"He sees knowledge the way he sees tools: locked up they rust, shared they build.",
+      rights:"Luca grew up watching neighbours disappear and learning not to ask questions. He is still unlearning that silence.",
+      economy:"He built the water-sharing system in Sector 9 from old parts. If you need a system the Bureau cannot stop, he has the design.",
+      tolerance:"Luca's mother came from somewhere else. He watched her be treated as less for years and never spoke about it — until now.",
+      broadcast:"He does not do speeches. He does structures. But sometimes the most important thing to build is a shared idea at the right moment.",
+      justice:"He built the archive system that stored the evidence. Without solid foundations, justice has nowhere to stand.",
+      infrastructure:"This is his area. He has been waiting for exactly this problem.",
+      media:"He does not trust stories. He trusts data. Right now, the data says people are being lied to.",
+      surveillance:"He mapped every camera in Sector 9 in his first week there. He knows the difference between a security system and a control system.",
+      voting:"He built the ballot box for the first underground council vote. He knows every part of it. He knows it is honest.",
+      gender:"He built things with his mother. She was better at it than anyone. He never understood why she was not allowed to lead.",
+      climate:"He has run the numbers. The river damage is not an accident. It is cheaper to pollute than to clean. Someone decided that was acceptable."
+    }
+  }
+];
+
+// Scenario pool — scenarios are selected dynamically based on meters
+// LANGUAGE: All narrative/choice text is written at B2 level for classroom read-aloud.
+const SCENARIOS = [
+
+  // ─── ALWAYS FIRST ─────────────────────────────────────────────────────────
+  {
+    id:0, tags:['discrimination'], alwaysFirst:true,
+    location:"SECTOR 4 — THE MARKET DISTRICT",
+    theme:"THEME: DISCRIMINATION",
+    title:"The Vendor's Refusal",
+    narrative:"It is morning at the market. A vendor refuses to sell food to a family wearing grey armbands. The Bureau makes all 'unregistered' people wear them. The family came from the Northern Zones. Other shoppers go quiet. The youngest child starts to cry.",
+    question:"The vendor is following Bureau rules. The family has no food. What does your group do?",
+    choices:[
+      {letter:"A", text:"Buy food yourselves and give it to the family. Be quiet about it so Bureau agents do not notice.", score:{equality:8,trust:6,solidarity:10}, quality:"good", unlock:"community_network"},
+      {letter:"B", text:"Speak up loudly in front of everyone. Name what the vendor is doing as discrimination.", score:{equality:10,trust:-4,freedom:8,solidarity:8}, quality:"mixed"},
+      {letter:"C", text:"Do nothing. You think there are Bureau informants in the crowd.", score:{equality:-8,trust:-5,solidarity:-8}, quality:"bad"},
+      {letter:"D", text:"Talk to the vendor privately later. Ask them to think about what they did.", score:{equality:5,trust:8,solidarity:5}, quality:"good"}
+    ],
+    discussion:["Why do people follow unfair rules even when they know it is wrong?","What is the difference between acting quietly and acting in public? When does each work better?","Have you ever seen someone treated unfairly and not known what to do?"],
+    outcomes:{good:"A small act of kindness changes the mood in the crowd. Two other buyers quietly do the same.", mixed:"The vendor stops. But a Bureau camera turns toward your group. Being brave matters — and so does being careful.", bad:"The family leaves with nothing. The Bureau stays powerful not only through force, but through silence."},
+    unlocks:{community_network:{icon:"🕸️", name:"Community Network", desc:"A quiet group of trusted neighbours now knows your group. New possibilities may open later."}},
+    teacher:{goals:"Understand discrimination as a system; practise empathy and ethical decision-making.", time:"6–8 min", concepts:"Discrimination, bystander effect, moral courage, systemic injustice", rubric:"Can the student explain why doing nothing is also a choice? Can they name the trade-offs between quiet and public action?"},
+    microFeedback:{good:"A neighbour quietly passes your name to someone they trust. Word travels.", bad:"The market gets a little quieter every day. Fear spreads like weather.", mixed:"The crowd leaves fast. Some faces look relieved. Some look worried."}
+  },
+
+  // ─── CENSORSHIP / EDUCATION ───────────────────────────────────────────────
+  {
+    id:1, tags:['censorship','education'],
+    location:"SECTOR 7 — THE EDUCATION BLOC",
+    theme:"THEME: FREE SPEECH & CENSORSHIP",
+    title:"The Banned Books",
+    narrative:"You find a locked room inside an old school. A teacher used to hide books there — history, science, poetry, and stories from other countries. The Bureau banned all of them. A group of teenagers found the room and wants to read. A Bureau patrol walks past the building every 20 minutes.",
+    question:"These books are illegal. The teenagers want to learn. What does your group decide?",
+    choices:[
+      {letter:"A", text:"Set up secret reading sessions. Bring small groups of trusted students, one at a time.", score:{freedom:10,trust:8,equality:5}, quality:"good", unlock:"evidence"},
+      {letter:"B", text:"Take photos of every book. Share the images through the resistance network.", score:{freedom:12,trust:5,solidarity:8}, quality:"good", unlock:"evidence"},
+      {letter:"C", text:"Tell the community elders first and let them decide. This affects more than just your group.", score:{trust:10,solidarity:6,freedom:4}, quality:"good"},
+      {letter:"D", text:"Leave the books locked. The risk is too high right now.", score:{freedom:-10,trust:-3,equality:-5}, quality:"bad"}
+    ],
+    discussion:["Why do some governments ban books? What are they afraid of?","Is education a human right? What happens to a society when it is taken away?","When is it worth taking a risk for someone else's freedom?"],
+    outcomes:{good:"The teenagers begin to read. One girl, Sol, will one day become Novara's first new teacher in a generation.", bad:"The books stay locked. Three months later, the Bureau finds and destroys them. The teenagers never knew they were there."},
+    unlocks:{evidence:{icon:"📄", name:"Evidence Archive", desc:"What you document here could one day be used in the Underground Court."}},
+    teacher:{goals:"Explore censorship, freedom of thought, and the right to education.", time:"6–8 min", concepts:"Censorship, intellectual freedom, Article 26 UDHR", rubric:"Can students explain why the Bureau bans books? Can they connect this to a real-world example?"},
+    microFeedback:{good:"Someone puts a small book in your pocket and walks away without a word.", bad:"The school stays dark. The patrol walks past and does not slow down.", mixed:"The elders listen carefully. They take longer to decide than you hoped."}
+  },
+
+  // ─── HUMAN RIGHTS ─────────────────────────────────────────────────────────
+  {
+    id:2, tags:['rights'],
+    location:"CENTRAL PLAZA — NOVARA CITY CORE",
+    theme:"THEME: HUMAN RIGHTS & DIGNITY",
+    title:"The Disappeared",
+    narrative:"Last night, Bureau agents took 12 people from the Outer Rings. There were no charges. There was no trial. The families are standing in the plaza, confused and afraid. A Bureau speaker says the people were 'dangerous.' Some citizens believe it. Others are too scared to say anything.",
+    question:"People were taken with no reason given. What does your group do?",
+    choices:[
+      {letter:"A", text:"Help the families write down names, dates, and what they saw. Create a record the Bureau cannot erase.", score:{freedom:8,equality:8,trust:10}, quality:"good", unlock:"testimony"},
+      {letter:"B", text:"Organise a silent gathering in the plaza. No speeches. Just stand together and be visible.", score:{solidarity:12,freedom:8,trust:6}, quality:"good"},
+      {letter:"C", text:"Share the truth through trusted people and handwritten notes. Keep it quiet.", score:{freedom:10,equality:6,solidarity:8}, quality:"good"},
+      {letter:"D", text:"Stay away. These people are strangers. You have your own family to protect.", score:{solidarity:-10,equality:-8,trust:-6}, quality:"bad"}
+    ],
+    discussion:["Why is it important that no one can be arrested without a reason?","Can a government ever be right to take someone's freedom 'for safety'? Where is the limit?","What does it feel like when someone disappears and no official talks about it?"],
+    outcomes:{good:"What you recorded becomes proof. Six months later, it is used in an underground court.", bad:"Without witnesses, the Bureau tells its own story. History belongs to those who show up."},
+    unlocks:{testimony:{icon:"📋", name:"Testimony Records", desc:"These witness accounts could one day be used in the Underground Court."}},
+    teacher:{goals:"Understand due process and the human cost of detention without trial.", time:"6–8 min", concepts:"Rule of law, due process, Articles 9–11 UDHR", rubric:"Can students explain what due process is and why it matters even for people accused of something?"},
+    microFeedback:{good:"One of the families nods at you across the plaza. No words needed.", bad:"Without a record, the Bureau's version becomes the truth.", mixed:"People stand in the plaza for an hour. Then they go home. No one is sure what it changed."}
+  },
+
+  // ─── ECONOMY / EQUALITY ───────────────────────────────────────────────────
+  {
+    id:3, tags:['economy'],
+    location:"SECTOR 2 — THE WORKER DISTRICTS",
+    theme:"THEME: EQUALITY & SOCIOECONOMIC JUSTICE",
+    title:"The Two Rations",
+    narrative:"The Bureau has a new food system. People with high 'compliance scores' get double rations. People who protest get half. Your group has extra food. Families in the lower district are going hungry — including children who had no say in their parents' choices.",
+    question:"You have more than you need. They have less than they need. What does your group decide?",
+    choices:[
+      {letter:"A", text:"Share your extra food directly with the families who need it most.", score:{equality:12,solidarity:12,trust:6}, quality:"good"},
+      {letter:"B", text:"Build a sharing system together — everyone gives what they can, and no one goes without.", score:{equality:10,solidarity:14,trust:10,freedom:6}, quality:"good"},
+      {letter:"C", text:"Keep your rations. You earned your score. Other people made their own choices.", score:{equality:-12,solidarity:-10,trust:-4}, quality:"bad"},
+      {letter:"D", text:"Speak at the community meeting. Say clearly that this is a system problem, not a personal failure.", score:{equality:8,freedom:10,solidarity:8,trust:4}, quality:"mixed"}
+    ],
+    discussion:["Is it ever fair to say that poor people 'deserve' to be poor? Who decides?","What is the difference between helping one person and changing a system?","Should children suffer because of choices their parents made?"],
+    outcomes:{good:"The sharing network grows quietly. People begin to trust each other again. The Bureau cannot easily stop something with no single leader.", bad:"The hungry get hungrier. Trust disappears. A society where people only protect themselves is exactly what the Bureau wants.", mixed:"Your words plant doubt. A few Bureau supporters start asking questions. Change begins in minds before it appears in streets."},
+    teacher:{goals:"Explore economic inequality, collective responsibility, and structural vs. individual solutions.", time:"6–8 min", concepts:"Economic justice, solidarity, individual vs. collective action", rubric:"Can students distinguish between charity and structural change? Can they explain what makes a system unfair?"},
+    microFeedback:{good:"A child you have never met waves at you from a window.", bad:"The food queues get longer. The Bureau officers look satisfied.", mixed:"Your words travel further than you expected. Someone repeats them a week later."}
+  },
+
+  // ─── TOLERANCE / BELONGING ────────────────────────────────────────────────
+  {
+    id:4, tags:['tolerance'],
+    location:"THE BORDER CHECKPOINT — NOVARA EAST GATE",
+    theme:"THEME: TOLERANCE & BELONGING",
+    title:"The Stranger at the Gate",
+    narrative:"A man named Aris arrives at the city gate. He speaks a different language, wears different clothes, and has different customs. Some residents are worried — the Bureau told them that 'outsiders bring problems.' Aris is tired and has nowhere to go.",
+    question:"Your group must decide what to do with Aris and how to talk to the people around you.",
+    choices:[
+      {letter:"A", text:"Welcome Aris, find him a place to stay, and organise a meal where residents can meet him.", score:{solidarity:12,trust:10,equality:8}, quality:"good"},
+      {letter:"B", text:"Support Aris quietly, but have an honest conversation with nervous residents. Listen to them too.", score:{trust:12,solidarity:8,equality:6,freedom:6}, quality:"good"},
+      {letter:"C", text:"Tell Aris he cannot stay. The community is not ready, and you do not want trouble.", score:{solidarity:-10,equality:-8,trust:-4}, quality:"bad"},
+      {letter:"D", text:"Help Aris tell his story so people understand where he came from and what he went through.", score:{equality:10,freedom:8,trust:8,solidarity:10}, quality:"good"}
+    ],
+    discussion:["What does it feel like to arrive somewhere new and be treated as a problem, not a person?","Is feeling uncomfortable about something the same as being in danger?","What makes a community strong — people being the same, or people being different?"],
+    outcomes:{good:"Aris teaches the community three things: a plant that heals, a better way to build, and a song. No one regrets welcoming him.", bad:"Aris leaves. The community never finds out what he knew, who he was, or what they lost."},
+    teacher:{goals:"Explore xenophobia, empathy, belonging, and refugee rights.", time:"6–8 min", concepts:"Xenophobia, belonging, refugee rights, Article 14 UDHR, empathy", rubric:"Can students explain the difference between discomfort and real danger? Can they say why diversity can make a community stronger?"},
+    microFeedback:{good:"Aris learns one word of the local language every day. After a month, he knows thirty.", bad:"The gate closes. The community does not feel safer. Just smaller.", mixed:"Aris stays for now. The residents are still unsure. The next few days will matter."}
+  },
+
+  // ─── ALWAYS LAST ──────────────────────────────────────────────────────────
+  {
+    id:5, tags:['broadcast'], alwaysLast:true,
+    location:"THE OLD BROADCAST TOWER — NOVARA HEIGHTS",
+    theme:"THEME: CIVIC COURAGE & CHANGE",
+    title:"The Final Broadcast",
+    narrative:"Your group has reached the old radio tower. If you broadcast from here, every speaker in Novara will hear you for exactly three minutes before the Bureau cuts the signal. You have one chance. The city is listening — tired, afraid, and unsure whether things can ever be different.",
+    question:"You have three minutes and the attention of the whole city. What does your group say?",
+    choices:[
+      {letter:"A", text:"'We are not the Bureau's enemies. We are your neighbours. And we believe Novara can be different.'", score:{trust:14,solidarity:12,freedom:8}, quality:"good"},
+      {letter:"B", text:"'Every right they took from you has a name. Every name has a law. And every law can be changed.'", score:{freedom:14,equality:12,trust:8}, quality:"good"},
+      {letter:"C", text:"'The Bureau only survives because we think we are alone. We are not alone. We never were.'", score:{solidarity:16,trust:12,equality:8,freedom:8}, quality:"good"},
+      {letter:"D", text:"Nothing. You wait too long. The window closes. The moment is gone forever.", score:{freedom:-10,solidarity:-8,trust:-10,equality:-6}, quality:"bad"}
+    ],
+    discussion:["Why is hope a brave act when people are afraid?","Which values matter most to you? What would you fight to protect?","If you could speak to your whole city for three minutes, what would you say?"],
+    outcomes:{good:"The signal is cut after two minutes and forty-seven seconds. But that is enough. Novara remembers. And remembering is how everything begins.", bad:"The tower stays silent. The Bureau reports a technical problem. The city goes back to sleep."},
+    teacher:{goals:"Bring the session's themes together in a civic statement; practise values communication.", time:"8–10 min — give groups time to draft a message before choosing", concepts:"Civic courage, persuasion, collective identity, language as a tool for change", rubric:"Can students say why they chose their message? Can they connect it to earlier scenarios?"},
+    microFeedback:{good:"The signal cuts. Novara is quiet for a moment. Then someone begins to talk.", bad:"The tower hums. No one hears. The Bureau never knows how close it was.", mixed:""}
+  },
+
+  // ─── BONUS: UNDERGROUND COURT (requires evidence OR testimony) ────────────
+  {
+    id:6, tags:['justice'], requires:'evidence|testimony',
+    location:"THE UNDERGROUND COURT — SECTOR 3 BASEMENT",
+    theme:"THEME: JUSTICE & ACCOUNTABILITY",
+    title:"The Underground Court",
+    narrative:"A group of citizens has created a secret court. They have collected evidence and witness accounts — some of it from your group's earlier work. Tonight, they will put the Bureau's arrests on trial. But the Bureau has spies. Someone must decide how much risk to take.",
+    question:"Your group helped make this court possible. What role do you play tonight?",
+    choices:[
+      {letter:"A", text:"Go to the court and present the evidence yourselves. Take the stand directly.", score:{freedom:14,equality:10,trust:8}, quality:"good"},
+      {letter:"B", text:"Send the evidence without showing your faces. The truth can stand on its own.", score:{freedom:10,trust:12,equality:8,solidarity:8}, quality:"good"},
+      {letter:"C", text:"Do not go. You have done enough. The danger is too great.", score:{freedom:-6,trust:-8,equality:-4}, quality:"bad"},
+      {letter:"D", text:"Do not testify, but help organise security so the trial can happen safely.", score:{trust:10,solidarity:14,freedom:8}, quality:"good"}
+    ],
+    discussion:["What is the difference between legal justice and moral justice?","Who decides what counts as proof? Who decides what the truth is?","Can justice exist without an official court or system behind it?"],
+    outcomes:{good:"The court does not reach a verdict. But the testimonies are read out loud. Seventeen people in the room cry. The Bureau cannot erase what has been heard.", bad:"The court happens without you. Later, three witnesses are identified and arrested. You think about whether your choice cost them."},
+    teacher:{goals:"Explore justice beyond formal law; connect earlier choices to consequences; practise moral reasoning.", time:"6–8 min", concepts:"Rule of law vs. moral law, accountability, restorative justice", rubric:"Can students connect this scenario to their earlier choices? Can they explain what justice means when official systems have failed?"},
+    microFeedback:{good:"The room is so quiet you can hear people breathing.", bad:"The Bureau finds the location two days later. It is empty. But the silence feels like an answer.", mixed:""}
+  },
+
+  // ─── BONUS: INFRASTRUCTURE ────────────────────────────────────────────────
+  {
+    id:7, tags:['infrastructure'],
+    location:"SECTOR 9 — WATER TREATMENT PLANT",
+    theme:"THEME: COLLECTIVE WELFARE",
+    title:"The Waterworks Siege",
+    narrative:"The Bureau has taken control of the Sector 9 water plant — the only source of clean water for 40,000 people. Their rule: all families must register with Bureau databases, including families with no official papers. If they do not, the water will be cut in 72 hours. Your group knows how to get around the Bureau's control system. But it is dangerous.",
+    question:"The Bureau is using water as a weapon. What does your group do?",
+    choices:[
+      {letter:"A", text:"Get around the Bureau's system and turn the water back on. Accept the risk.", score:{equality:12,solidarity:14,freedom:8}, quality:"good"},
+      {letter:"B", text:"Talk to Bureau officials to buy time, while secretly preparing the technical fix.", score:{trust:10,equality:8,solidarity:6,freedom:4}, quality:"mixed"},
+      {letter:"C", text:"Do nothing. The fix could go wrong and damage the plant permanently.", score:{equality:-8,solidarity:-10,freedom:-4}, quality:"bad"},
+      {letter:"D", text:"Move the most vulnerable families to a safe area while you work on a longer solution.", score:{solidarity:12,equality:6,trust:8}, quality:"good"}
+    ],
+    discussion:["Is access to clean water a human right? Can it ever be taken away?","When is taking a risk the right thing to do? When is it not?","What does it mean when the people who control basic services do not share your values?"],
+    outcomes:{good:"The water flows again. The Bureau cannot find out how. 40,000 people turn on their taps that night.", bad:"847 families register their details to keep the water on. The Bureau now has their addresses.", mixed:"The talks give you 48 hours. What you do next will decide everything."},
+    teacher:{goals:"Explore essential services as rights; examine direct action vs. negotiation.", time:"6–8 min", concepts:"Essential services, civil disobedience, collective welfare, infrastructure politics", rubric:"Can students identify the trade-offs in each option? Can they explain when breaking a rule might be morally right?"},
+    microFeedback:{good:"Someone leaves a glass of water outside your door in the morning. No note.", bad:"The registration desks are full all day. The Bureau officers look pleased.", mixed:"The official agrees to a meeting. He is five minutes early. That could mean anything."}
+  },
+
+  // ─── NEW: MEDIA LITERACY / FAKE NEWS ─────────────────────────────────────
+  {
+    id:8, tags:['media'],
+    location:"SECTOR 5 — THE INFORMATION DISTRICT",
+    theme:"THEME: MEDIA LITERACY & TRUTH",
+    title:"The Rumour Machine",
+    narrative:"A story is spreading fast through Novara. It says that the resistance group poisoned the drinking water in Sector 6. Many people are angry. Some are scared. The story is false — your group knows this. But it is already everywhere. People are starting to blame their neighbours.",
+    question:"A false story is turning people against each other. What does your group do?",
+    choices:[
+      {letter:"A", text:"Find proof that the story is false. Share it clearly through trusted community contacts.", score:{trust:12,equality:6,solidarity:8}, quality:"good"},
+      {letter:"B", text:"Organise a public meeting. Let people ask questions and check the facts together.", score:{trust:10,solidarity:10,freedom:8}, quality:"good"},
+      {letter:"C", text:"Write your own counter-story. Make it as dramatic as the false one so people will share it.", score:{trust:-6,freedom:4,equality:4}, quality:"mixed"},
+      {letter:"D", text:"Say nothing. Trying to correct it will only draw attention to your group.", score:{trust:-8,solidarity:-8,equality:-4}, quality:"bad"}
+    ],
+    discussion:["How can you tell if a piece of news is true? What do you check?","Why do false stories sometimes spread faster than true ones?","What responsibility do we have when we see something false being shared?"],
+    outcomes:{good:"The correction spreads. Slowly, the anger fades. People learn to ask questions before they share.", mixed:"Your counter-story gets attention — but some people now distrust both versions. You created doubt, not clarity.", bad:"Without a correction, the false story becomes what people believe. The Bureau reports it as fact on all official channels."},
+    unlocks:{verified_network:{icon:"🔍", name:"Verified Network", desc:"A group of trusted citizens now fact-checks information together. Future choices may benefit from this."}},
+    teacher:{goals:"Develop media literacy skills; understand how misinformation spreads and how to respond to it.", time:"6–8 min", concepts:"Misinformation, disinformation, media literacy, source verification, digital citizenship", rubric:"Can students explain the difference between misinformation and disinformation? Can they describe at least two ways to check if something is true?"},
+    microFeedback:{good:"Two people who were shouting at each other stop. One of them asks: 'Wait, is that actually true?'", bad:"The story is still spreading tomorrow. And the day after. And the day after that.", mixed:"Some people believe you. Others believe the original story. The community is now divided into two groups."}
+  },
+
+  // ─── NEW: DIGITAL RIGHTS & SURVEILLANCE ──────────────────────────────────
+  {
+    id:9, tags:['surveillance'],
+    location:"SECTOR 1 — THE ADMINISTRATIVE ZONE",
+    theme:"THEME: DIGITAL RIGHTS & PRIVACY",
+    title:"The Watching Screen",
+    narrative:"The Bureau has installed new cameras and listening devices across Novara. Every message sent on the city network is now monitored. A Bureau official announces this is 'for your protection.' People can no longer speak privately. Many people are changing how they behave — even at home.",
+    question:"The Bureau is watching and listening to everyone. What does your group do?",
+    choices:[
+      {letter:"A", text:"Teach people how to communicate safely. Share methods that the Bureau cannot monitor.", score:{freedom:12,trust:8,solidarity:10}, quality:"good"},
+      {letter:"B", text:"Write a public letter signed by many citizens. Demand that the surveillance stops.", score:{freedom:10,equality:8,trust:6,solidarity:8}, quality:"good"},
+      {letter:"C", text:"Accept it. If you have nothing to hide, the cameras should not worry you.", score:{freedom:-12,trust:-6,equality:-4}, quality:"bad"},
+      {letter:"D", text:"Secretly document where the cameras are. Build a map so the resistance can move safely.", score:{freedom:10,solidarity:12,trust:6}, quality:"good", unlock:"safe_routes"}
+    ],
+    discussion:["Does a government have the right to read your private messages? Under what conditions?","If you have 'nothing to hide,' does that mean surveillance is fine? What is wrong with that idea?","How does being watched all the time change the way people act — even if they do nothing wrong?"],
+    outcomes:{good:"People learn new ways to talk to each other. The Bureau is watching — but it can no longer hear everything.", bad:"People stop talking. They stop meeting. Silence spreads across Novara. The Bureau calls this 'stability.'", mixed:"The letter collects 400 signatures before the Bureau removes it. But those 400 people now know each other."},
+    unlocks:{safe_routes:{icon:"🗺️", name:"Safe Routes Map", desc:"A hidden map of Bureau camera positions. Future movements in Novara become safer."}},
+    teacher:{goals:"Understand digital privacy, surveillance, and citizens' rights in a monitored society.", time:"6–8 min", concepts:"Privacy rights, Article 12 UDHR, mass surveillance, digital citizenship, chilling effect", rubric:"Can students explain the 'chilling effect' — how surveillance changes behaviour even among people who break no rules?"},
+    microFeedback:{good:"Someone passes you a note folded into a small square. Old methods work best.", bad:"The city grows quieter. Not peaceful — just silent. There is a difference.", mixed:"The letter disappears. But 400 people remember signing it."}
+  },
+
+  // ─── NEW: POLITICAL PARTICIPATION & VOTING ────────────────────────────────
+  {
+    id:10, tags:['voting'],
+    location:"SECTOR 8 — THE CIVIC HALL",
+    theme:"THEME: DEMOCRACY & PARTICIPATION",
+    title:"The Empty Ballot Box",
+    narrative:"The Bureau has announced a 'community vote' on a new rule. The rule would ban all gatherings of more than four people. Many people are suspicious — they do not believe the vote will be counted honestly. Others think participating is still worth it. Some people say voting for an unfair system only makes it look legitimate.",
+    question:"Should your group take part in a vote that may not be fair? What do you do?",
+    choices:[
+      {letter:"A", text:"Vote, and bring as many community members as possible. Numbers are harder to ignore.", score:{trust:8,equality:10,solidarity:10}, quality:"good"},
+      {letter:"B", text:"Refuse to vote and explain clearly why — the process is not fair and participation gives it false credibility.", score:{freedom:10,trust:6,equality:6}, quality:"good"},
+      {letter:"C", text:"Vote but also document any problems you see. Create a record of how the vote is handled.", score:{trust:10,freedom:8,equality:8,solidarity:6}, quality:"good", unlock:"vote_record"},
+      {letter:"D", text:"Do nothing and tell others not to bother either. Nothing will change anyway.", score:{trust:-8,solidarity:-8,freedom:-6}, quality:"bad"}
+    ],
+    discussion:["Is voting in an unfair election better than not voting at all? What are the arguments on each side?","What makes an election fair? Name at least three conditions.","What can citizens do when they believe a vote is being manipulated?"],
+    outcomes:{good:"More people vote than the Bureau expected. The result is close. The Bureau changes the rule anyway — but they know resistance is real.", mixed:"Your record documents three problems with the vote. The community now has evidence. It is not justice yet, but it is a start.", bad:"The vote passes without challenge. The Bureau takes silence as agreement. Gatherings of more than four people are now illegal."},
+    unlocks:{vote_record:{icon:"🗳️", name:"Election Record", desc:"Documented evidence of vote irregularities. Could support future accountability efforts."}},
+    teacher:{goals:"Understand democratic participation, the conditions for fair elections, and the value of civic engagement.", time:"6–8 min", concepts:"Democracy, voting rights, election integrity, civic participation, Article 21 UDHR", rubric:"Can students name the conditions for a fair election? Can they argue both sides of the participation debate?"},
+    microFeedback:{good:"The Bureau official looks at the turnout numbers longer than expected. He does not look happy.", bad:"The hall is almost empty. The Bureau counts the vote in ten minutes. The rule passes easily.", mixed:"Your report is three pages long. Someone reads it. Then passes it to someone else."}
+  },
+
+  // ─── NEW: GENDER EQUALITY ────────────────────────────────────────────────
+  {
+    id:11, tags:['gender'],
+    location:"SECTOR 6 — THE RESIDENTIAL BLOCKS",
+    theme:"THEME: GENDER EQUALITY",
+    title:"The Closed Door",
+    narrative:"The Bureau has introduced a new rule. Women in Novara can no longer hold public roles — no community leadership, no speaking at meetings, no work outside the home. A woman named Mara was one of the most respected voices in Sector 6. She has gone quiet. Others have too. Some men in the community agree with the new rule.",
+    question:"Women in your community have been silenced by an official rule. What does your group do?",
+    choices:[
+      {letter:"A", text:"Support Mara and other women to keep meeting — unofficially, in homes, away from Bureau attention.", score:{equality:12,solidarity:12,trust:6}, quality:"good"},
+      {letter:"B", text:"Hold a community meeting where men and women speak together openly, in defiance of the rule.", score:{equality:14,freedom:10,solidarity:8}, quality:"mixed"},
+      {letter:"C", text:"Accept the rule for now. It is not worth the risk. Things may change later.", score:{equality:-12,solidarity:-8,freedom:-6}, quality:"bad"},
+      {letter:"D", text:"Collect stories from the women who have been silenced. Document what is being lost.", score:{equality:10,trust:8,freedom:8,solidarity:8}, quality:"good", unlock:"women_voices"}
+    ],
+    discussion:["Why do some societies limit the roles that women can have? Where does this idea come from?","What is lost when part of a community is not allowed to speak or lead?","What can men do to support gender equality — not just women?"],
+    outcomes:{good:"The meetings continue in secret. Mara keeps her voice. Six months later, she is one of the first people to speak at the underground council.", mixed:"The open meeting is shut down by a Bureau patrol. But 40 people were there. They saw each other. That matters.", bad:"The silence becomes normal. New generations grow up thinking this is how things have always been. That is exactly what the Bureau wants."},
+    unlocks:{women_voices:{icon:"🎙️", name:"Women's Archive", desc:"A collection of stories from silenced women in Novara. Powerful evidence for future change."}},
+    teacher:{goals:"Explore gender equality, the impact of silencing voices, and how communities can resist discrimination.", time:"6–8 min", concepts:"Gender equality, Article 2 UDHR, structural discrimination, the role of allyship", rubric:"Can students explain the difference between formal equality and real equality? Can they describe what 'allyship' means in practice?"},
+    microFeedback:{good:"Mara nods at you across the room. No words. But you understand.", bad:"The street outside Mara's house is very quiet now. It was not quiet before.", mixed:"The patrol breaks it up. But everyone walks home knowing the same thing: we are not alone."}
+  },
+
+  // ─── NEW: CLIMATE & ENVIRONMENTAL JUSTICE ────────────────────────────────
+  {
+    id:12, tags:['climate'],
+    location:"THE OUTER FIELDS — NOVARA SOUTH",
+    theme:"THEME: CLIMATE & ENVIRONMENTAL JUSTICE",
+    title:"The Poisoned Fields",
+    narrative:"Factories built by the Bureau are releasing chemicals into the water and soil near the Outer Fields — the area where the poorest communities grow their food. Children in those neighbourhoods are getting sick. Bureau scientists say there is no problem. Independent tests say something very different. The factory owners have Bureau connections.",
+    question:"The environment is being destroyed, and the poorest people are suffering most. What does your group do?",
+    choices:[
+      {letter:"A", text:"Collect water and soil samples and share the results with as many people as possible.", score:{equality:10,freedom:8,trust:10}, quality:"good", unlock:"field_data"},
+      {letter:"B", text:"Organise the affected community to demand that the factories stop. Make it a public issue.", score:{equality:12,solidarity:12,freedom:8}, quality:"good"},
+      {letter:"C", text:"Trust the Bureau's scientists. You do not have the training to judge the results.", score:{equality:-8,trust:-4,freedom:-4}, quality:"bad"},
+      {letter:"D", text:"Help the community move their food production away from the contaminated areas immediately.", score:{solidarity:10,equality:6,trust:8}, quality:"good"}
+    ],
+    discussion:["Why do environmental problems often hurt poorer communities more than rich ones? Is this fair?","What is the responsibility of a government to protect the environment? What happens when it does not?","What can ordinary people do when science and power are on opposite sides?"],
+    outcomes:{good:"The data is shared. A network of people begin to talk about what is happening. The Bureau cannot easily dismiss what is now written down.", bad:"The factories continue. The children stay sick. The Bureau's version of the truth is the only one most people hear.", mixed:"The community moves their crops. They are safe for now. But the poison is still there. The problem is not solved."},
+    unlocks:{field_data:{icon:"🌱", name:"Environmental Evidence", desc:"Test results documenting pollution in the Outer Fields. Facts that cannot be unseen."}},
+    teacher:{goals:"Connect environmental issues to social justice; understand the concept of 'environmental justice.'", time:"6–8 min", concepts:"Environmental justice, climate inequality, the right to a healthy environment, civic science", rubric:"Can students explain why environmental harm is also a justice issue? Can they name groups of people who are most often affected?"},
+    microFeedback:{good:"A child from the Outer Fields draws a picture of clean water and gives it to you.", bad:"The factory smoke continues every morning. The families who live nearby have stopped complaining. They are tired.", mixed:"The fields are safer now. But at night you can still see the lights of the factory."}
+  },
+
+  // ─── NEW: MEDIA / PROPAGANDA ──────────────────────────────────────────────
+  {
+    id:13, tags:['media'],
+    location:"SECTOR 5 — THE BROADCAST CENTRE",
+    theme:"THEME: PROPAGANDA & CRITICAL THINKING",
+    title:"The Bureau's Story",
+    narrative:"The Bureau has started a new school programme. All children in Novara must watch a daily video that describes the resistance as violent and criminal. The video uses real events but presents them in a misleading way — leaving out important details and showing only one point of view. Teachers are told to say nothing against it.",
+    question:"The Bureau is teaching children to see the world through its eyes only. What does your group do?",
+    choices:[
+      {letter:"A", text:"Create simple guides that help young people ask questions about what they see and read.", score:{freedom:12,equality:8,trust:8}, quality:"good"},
+      {letter:"B", text:"Support teachers who are uncomfortable with the programme. Help them share other perspectives.", score:{trust:12,freedom:10,solidarity:8}, quality:"good"},
+      {letter:"C", text:"Do nothing. Children will figure out the truth on their own eventually.", score:{freedom:-8,equality:-6,trust:-4}, quality:"bad"},
+      {letter:"D", text:"Find young people who already have doubts and give them space to talk and think freely.", score:{freedom:10,solidarity:10,trust:8}, quality:"good"}
+    ],
+    discussion:["What is the difference between education and propaganda? How can you tell them apart?","Why is it important to hear more than one point of view on a topic?","At what age should young people learn to question what they are told?"],
+    outcomes:{good:"A generation grows up asking 'but is that the whole story?' The Bureau calls them difficult. The community calls them citizens.", bad:"The videos continue. Children repeat what they are told. Ten years later, many adults believe the Bureau's version of history.", mixed:"A small group of young people start meeting to share different ideas. They are careful. But they are curious. That is enough."},
+    teacher:{goals:"Develop critical media literacy; distinguish between education and propaganda.", time:"6–8 min", concepts:"Propaganda, critical thinking, media literacy, education as a right vs. a tool of control", rubric:"Can students describe at least two differences between objective information and propaganda? Can they give a real-world example?"},
+    microFeedback:{good:"A teenager raises her hand in class and says: 'But is that actually true?' The teacher does not answer. But she does not punish her either.", bad:"The videos play every morning. The children sit quietly. Their questions stop coming.", mixed:"The conversations are small and secret. But small and secret is how most things start."}
+  },
+
+  // ─── NEW: SURVEILLANCE / DIGITAL IDENTITY ────────────────────────────────
+  {
+    id:14, tags:['surveillance'],
+    location:"SECTOR 1 — THE DIGITAL REGISTRY OFFICE",
+    theme:"THEME: DIGITAL IDENTITY & CONTROL",
+    title:"The ID Chip",
+    narrative:"The Bureau announces a new rule. Every citizen must carry a digital chip that records where they go, who they meet, and what they buy. The Bureau says it will make Novara 'safer and more efficient.' Anyone who refuses the chip will lose access to jobs, healthcare, and housing. Some people think this is reasonable. Others are frightened.",
+    question:"The Bureau wants to track every citizen, every day. What does your group do?",
+    choices:[
+      {letter:"A", text:"Refuse the chip publicly. Explain clearly what is being taken away, not just what is being offered.", score:{freedom:14,equality:6,trust:6}, quality:"good"},
+      {letter:"B", text:"Accept the chip for now, but organise community legal challenges to stop the programme.", score:{trust:8,freedom:6,equality:8,solidarity:8}, quality:"mixed"},
+      {letter:"C", text:"Accept the chip. The benefits — jobs, healthcare — are too important to lose.", score:{freedom:-12,equality:-4,trust:-4}, quality:"bad"},
+      {letter:"D", text:"Help people who cannot afford to refuse — the most vulnerable — find ways to stay safe from the worst effects.", score:{equality:12,solidarity:12,freedom:6}, quality:"good"}
+    ],
+    discussion:["What information should a government be allowed to collect about its citizens? Where is the line?","If refusing a system means losing your home or your healthcare, is your choice really free?","What is the difference between security and control?"],
+    outcomes:{good:"The public refusal creates a conversation the Bureau did not expect. People begin to ask what the chip is really for.", mixed:"The legal challenge takes months. In the meantime, 70% of citizens accept the chip. The Bureau considers this a success.", bad:"Within a year, the Bureau knows the daily movements of every citizen. The resistance finds it much harder to organise safely."},
+    teacher:{goals:"Understand digital identity, data rights, and the trade-off between convenience and privacy.", time:"6–8 min", concepts:"Data rights, digital surveillance, coercion, privacy as a right not a privilege", rubric:"Can students explain why a 'free' choice may not actually be free? Can they identify a real-world equivalent of the ID chip?"},
+    microFeedback:{good:"Some people destroy their chips publicly. Others watch. Something shifts.", bad:"The chip office is busy all week. The queue stretches around the block.", mixed:"The legal team is small and tired. But they are still working."}
+  },
+
+  // ─── NEW: VOTING RIGHTS / EXCLUSION ──────────────────────────────────────
+  {
+    id:15, tags:['voting'],
+    location:"SECTOR 3 — THE COMMUNITY HALL",
+    theme:"THEME: VOTING RIGHTS & EXCLUSION",
+    title:"The Excluded Voices",
+    narrative:"Novara's underground council is planning its first free vote. But someone has proposed a rule: only people who have lived in Novara for more than five years can vote. This would stop refugees, new arrivals, and many young people from participating. People on both sides feel strongly about this.",
+    question:"Who should get a voice in the decisions that affect their lives? What does your group decide?",
+    choices:[
+      {letter:"A", text:"Argue clearly that everyone affected by a decision should have a voice in it — including new arrivals.", score:{equality:14,solidarity:10,trust:6}, quality:"good"},
+      {letter:"B", text:"Propose a compromise: all residents vote, but longer-term residents have an additional advisory vote.", score:{trust:10,equality:8,solidarity:6}, quality:"mixed"},
+      {letter:"C", text:"Support the five-year rule. Stability matters, and new members need time to understand the community.", score:{equality:-10,solidarity:-8,trust:-4}, quality:"bad"},
+      {letter:"D", text:"Delay the vote until the community has had a real, open conversation about who belongs.", score:{trust:12,equality:8,solidarity:10}, quality:"good"}
+    ],
+    discussion:["Who should be allowed to vote? What should the conditions be — if any?","Is it ever fair to exclude someone from a vote about things that affect their life?","What does it mean to 'belong' to a community? Is it about time, place, contribution, or something else?"],
+    outcomes:{good:"The vote is open to all. The result is closer than expected. People who were nearly excluded vote in large numbers — and their voices change the outcome.", mixed:"The compromise satisfies no one completely. But the vote happens. It is imperfect. So is every first step.", bad:"The excluded communities lose trust in the council. Many stop participating in community decisions altogether. The council becomes something they watch from outside."},
+    teacher:{goals:"Explore voting rights, inclusion, and the conditions for democratic participation.", time:"6–8 min", concepts:"Voting rights, inclusion and exclusion, belonging, representation, Article 21 UDHR", rubric:"Can students explain why voting rights matter beyond just 'having a say'? Can they describe a real historical example of people being excluded from voting?"},
+    microFeedback:{good:"Daan votes for the first time. He does not tell anyone. But he keeps the paper slip in his coat pocket for a week.", bad:"The excluded community holds its own informal vote outside the hall. The results are very different.", mixed:"It is a compromise. Nobody is happy. But the vote happens, and everyone accepts the result. That is something."}
+  },
+
+  // ─── NEW: GENDER / SAFE SPACES ───────────────────────────────────────────
+  {
+    id:16, tags:['gender'],
+    location:"SECTOR 6 — THE COMMUNITY CENTRE",
+    theme:"THEME: SAFETY, DIGNITY & GENDER",
+    title:"The Night She Didn't Come Home",
+    narrative:"A young woman named Leila stopped coming to community meetings after she was followed home by two men near the market. She told one neighbour what happened, but asked her to keep it quiet. She is not the only woman this has happened to. The men responsible are known in the community. Some people say the women should 'be more careful.'",
+    question:"Leila and other women do not feel safe. The community is not protecting them. What does your group do?",
+    choices:[
+      {letter:"A", text:"Create a community safety system — safe walking routes, trusted people to call, a place to report problems.", score:{equality:12,solidarity:12,trust:10}, quality:"good"},
+      {letter:"B", text:"Have a direct public conversation in the community about why women should not have to accept this.", score:{equality:14,freedom:8,solidarity:10}, quality:"good"},
+      {letter:"C", text:"Give Leila advice on how to avoid similar situations. She needs to be more careful.", score:{equality:-10,trust:-8,solidarity:-6}, quality:"bad"},
+      {letter:"D", text:"Talk privately to the men involved. Make clear that their behaviour has consequences.", score:{equality:8,trust:8,solidarity:6}, quality:"mixed"}
+    ],
+    discussion:["Why do people sometimes tell victims to 'be more careful' instead of addressing the real problem?","What is the difference between individual safety advice and real change?","What can men and boys do to make their communities safer for women?"],
+    outcomes:{good:"A community safety group forms. Women begin to report problems. Three months later, the market area feels different.", bad:"Nothing changes officially. Leila stays home. Other women follow. The community loses a voice it needed.", mixed:"The conversation is uncomfortable. Some people leave. But it happens. And it is remembered."},
+    teacher:{goals:"Explore gender-based safety, the concept of victim-blaming, and community responsibility.", time:"6–8 min", concepts:"Gender-based violence, victim-blaming, bystander responsibility, structural vs. individual solutions", rubric:"Can students explain the difference between victim-blaming and addressing the real cause? Can they name one structural change that would improve safety?"},
+    microFeedback:{good:"Leila comes back to the next meeting. She sits near the front.", bad:"The following week, two more women quietly stop attending meetings.", mixed:"The men listen. They do not apologise. But they do not repeat the behaviour either. For now."}
+  },
+
+  // ─── NEW: CLIMATE / COLLECTIVE ACTION ────────────────────────────────────
+  {
+    id:17, tags:['climate'],
+    location:"THE OUTER FIELDS — COMMUNITY MEETING HUT",
+    theme:"THEME: ENVIRONMENTAL RESPONSIBILITY",
+    title:"The River We Share",
+    narrative:"The river that flows through the Outer Fields is dying. Decades of pollution and poor management have damaged it. Three different neighbourhoods depend on it — but they have always blamed each other for the problem. The Bureau has offered to 'manage' the river — but only if communities give up control of their land. The deadline is in one week.",
+    question:"The river is dying and the Bureau is offering a deal that could make things worse. What does your group do?",
+    choices:[
+      {letter:"A", text:"Bring the three communities together. Work out a shared plan before the Bureau deadline.", score:{solidarity:14,equality:10,trust:12}, quality:"good"},
+      {letter:"B", text:"Accept the Bureau's offer. At least the river will be managed by someone with resources.", score:{freedom:-10,equality:-6,trust:-4}, quality:"bad"},
+      {letter:"C", text:"Reject the Bureau's offer publicly. Start small: begin cleaning the river yourselves, together.", score:{solidarity:12,freedom:10,equality:8}, quality:"good"},
+      {letter:"D", text:"Research the Bureau's real plan. Find out what 'managing' the river would actually mean.", score:{trust:10,freedom:8,equality:6}, quality:"good", unlock:"land_report"}
+    ],
+    discussion:["Why is it hard for communities to work together on shared problems, even when they all suffer from the same issue?","What does it mean for a community to have control over its own environment?","When is accepting outside help a good idea? When is it a risk?"],
+    outcomes:{good:"The three communities meet for the first time in years. They argue. But they also agree on a plan. The Bureau's deadline passes. Nothing happens. The communities keep the river.", bad:"The Bureau takes control of the river. Six months later, a new factory begins operations upstream. The communities had no vote.", mixed:"The research reveals the Bureau's real intentions. It changes the conversation completely. One neighbourhood that almost agreed now refuses."},
+    unlocks:{land_report:{icon:"📊", name:"Land Rights Report", desc:"Evidence of what the Bureau really planned to do with the river. Useful for future challenges."}},
+    teacher:{goals:"Explore collective action, environmental responsibility, and the politics of shared resources.", time:"6–8 min", concepts:"The commons, collective action problems, environmental justice, community ownership", rubric:"Can students explain why shared problems are harder to solve than individual ones? Can they describe what 'the commons' means?"},
+    microFeedback:{good:"The three communities share a meal at the river's edge. It is the first time in seven years.", bad:"The Bureau's logo appears on a new sign by the river. The communities are no longer mentioned.", mixed:"The report is three pages. The last page is the most important."}
+  }
+];
+
+// =====================================================================
+// STATE
+// =====================================================================
+let selectionOrder = [];
+let state = {};
+
+function freshState() {
+  return {
+    teamOrder:[],
+    playedScenarioIds: new Set(),
+    currentScenarioId: 0,
+    scenarioCount: 0,
+    totalScenarios: 8,  // 8 scenarios per run: 1 fixed start + 6 dynamic + 1 fixed end
+    meters:{equality:40,trust:35,freedom:30,solidarity:45},
+    unlocked:{},
+    playerScores:{},
+    history:[],
+    choiceMade:false,
+    pendingChoice:null,
+    teacherMode:false,
+    abilityUsedThisScenario:false
+  };
+}
+
+// =====================================================================
+// SCENARIO SELECTION (meter-driven branching)
+// =====================================================================
+function chooseNextScenario() {
+  const m = state.meters;
+  const played = state.playedScenarioIds;
+
+  // Check if we've reached the final scenario
+  if (state.scenarioCount >= state.totalScenarios - 1) {
+    const finalS = SCENARIOS.find(s => s.alwaysLast && !played.has(s.id));
+    return finalS ? finalS.id : null;
+  }
+
+  // Build weighted candidate pool based on meter thresholds
+  const candidates = [];
+
+  // Bonus scenarios first (if requirements met and not yet played)
+  SCENARIOS.forEach(s => {
+    if (s.alwaysFirst || s.alwaysLast || played.has(s.id)) return;
+    if (s.requires) {
+      const reqs = s.requires.split('|');
+      if (!reqs.some(r => state.unlocked[r])) return;
+    }
+    // Weight by meter relevance and theme
+    let weight = 1;
+    if (s.tags.includes('censorship') && m.freedom < 40) weight = 3;
+    if (s.tags.includes('education') && m.freedom < 40) weight = 3;
+    if (s.tags.includes('economy') && m.equality < 40) weight = 3;
+    if (s.tags.includes('tolerance') && m.solidarity < 40) weight = 3;
+    if (s.tags.includes('rights') && m.trust < 40) weight = 2;
+    if (s.tags.includes('justice') && (state.unlocked.evidence || state.unlocked.testimony)) weight = 4;
+    if (s.tags.includes('infrastructure')) weight = 2;
+    if (s.tags.includes('media') && m.trust < 40) weight = 3;
+    if (s.tags.includes('surveillance') && m.freedom < 35) weight = 3;
+    if (s.tags.includes('voting') && m.equality < 40) weight = 2;
+    if (s.tags.includes('gender') && m.equality < 35) weight = 3;
+    if (s.tags.includes('climate') && m.solidarity < 40) weight = 2;
+    for (let i = 0; i < weight; i++) candidates.push(s.id);
+  });
+
+  if (candidates.length === 0) {
+    // Fallback: pick any unplayed non-fixed scenario
+    const fallback = SCENARIOS.filter(s => !s.alwaysFirst && !s.alwaysLast && !played.has(s.id) && !s.requires);
+    if (fallback.length > 0) return fallback[Math.floor(Math.random() * fallback.length)].id;
+    return null;
+  }
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function getScenarioById(id) {
+  return SCENARIOS.find(s => s.id === id);
+}
+
+// =====================================================================
+// CHARACTER ABILITIES
+// =====================================================================
+function tryRenderAbilityButton(ri, scenarioTags) {
+  const container = document.getElementById('ability-btn-container');
+  container.innerHTML = '';
+  const role = ROLES[ri];
+  if (!role.ability) return;
+
+  const a = role.ability;
+  const isRelevant = scenarioTags.includes(a.trigger) || a.trigger === 'any';
+  if (!isRelevant) return; // Only show if the scenario is the right type
+
+  const btn = document.createElement('div');
+  btn.className = `ability-btn${a.used ? ' used' : ''}`;
+  btn.id = 'ability-btn';
+  btn.innerHTML = `<span class="ability-btn-icon">${a.icon}</span> ${a.label}${a.used ? ' — USED' : ''}`;
+  btn.title = a.desc;
+  if (!a.used) {
+    btn.onclick = () => activateAbility(ri);
+  }
+  container.appendChild(btn);
+}
+
+function activateAbility(ri) {
+  const role = ROLES[ri];
+  if (!role.ability || role.ability.used) return;
+
+  role.ability.used = true;
+
+  if (role.ability.effect === 'mitigation') {
+    state.abilityMitigation = true;
+    addLog(`[${role.name}] activated ${role.ability.label} — bad outcomes halved this scenario`, 'ability');
+  } else {
+    Object.entries(role.ability.effect).forEach(([k,v]) => {
+      state.meters[k] = (state.meters[k]||0) + v;
+    });
+    updateMeters();
+    addLog(`[${role.name}] used ${role.ability.label}: ${role.ability.desc}`, 'ability');
+  }
+
+  // Update button
+  const btn = document.getElementById('ability-btn');
+  if (btn) { btn.classList.add('used'); btn.onclick = null; btn.innerHTML = `<span class="ability-btn-icon">${role.ability.icon}</span> ${role.ability.label} — USED`; }
+
+  // Update sidebar pip
+  renderSidebarPlayers();
+}
+
+// =====================================================================
+// INTRO
+// =====================================================================
+function toggleRole(card) {
+  const ri = parseInt(card.dataset.role);
+  const idx = selectionOrder.indexOf(ri);
+  if (idx === -1) {
+    if (selectionOrder.length >= 4) return;
+    selectionOrder.push(ri);
+    card.classList.add('selected');
+  } else {
+    selectionOrder.splice(idx, 1);
+    card.classList.remove('selected');
+  }
+  [0,1,2,3].forEach(r => {
+    const badge = document.getElementById(`ob-${r}`);
+    const pos = selectionOrder.indexOf(r);
+    badge.textContent = pos === -1 ? '' : `#${pos+1}`;
+  });
+  const btn = document.getElementById('start-btn');
+  if (selectionOrder.length >= 2) {
+    btn.disabled = false;
+    btn.textContent = `BEGIN WITH ${selectionOrder.length} PLAYER${selectionOrder.length>1?'S':''}`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'SELECT 2–4 CHARACTERS';
+  }
+}
+
+function showIntro() {
+  selectionOrder = [];
+  state = freshState();
+  // Reset ability used flags on ROLES
+  ROLES.forEach(r => { if(r.ability) r.ability.used = false; });
+  document.getElementById('screen-intro').style.display = 'flex';
+  document.getElementById('screen-game').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'none';
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  [0,1,2,3].forEach(r => { document.getElementById(`ob-${r}`).textContent = ''; });
+  const btn = document.getElementById('start-btn');
+  btn.disabled = true;
+  btn.textContent = 'SELECT 2–4 CHARACTERS';
+  setActiveColor('#c8933a');
+}
+
+function startGame() {
+  if (selectionOrder.length < 2) return;
+  state = freshState();
+  state.teamOrder = [...selectionOrder];
+  state.teamOrder.forEach(ri => { state.playerScores[ri] = 0; });
+  document.getElementById('screen-intro').style.display = 'none';
+  document.getElementById('screen-game').style.display = 'block';
+  renderSidebarPlayers();
+  // Always start with scenario 0
+  loadScenario(0);
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function setActiveColor(c) { document.documentElement.style.setProperty('--active-color', c); }
+function activeRoleIndex() { return state.teamOrder[state.scenarioCount % state.teamOrder.length]; }
+
+function toggleTeacherMode() {
+  state.teacherMode = !state.teacherMode;
+  const toggle = document.getElementById('teacher-toggle');
+  toggle.classList.toggle('active', state.teacherMode);
+  const tn = document.getElementById('teacher-notes');
+  tn.classList.toggle('visible', state.teacherMode);
+}
+
+function renderSidebarPlayers() {
+  const container = document.getElementById('player-list');
+  container.innerHTML = '';
+  const activeTurnSlot = state.scenarioCount % state.teamOrder.length;
+  state.teamOrder.forEach((ri, slot) => {
+    const r = ROLES[ri];
+    const isActive = slot === activeTurnSlot;
+    const isDone = !isActive && slot < activeTurnSlot;
+    const ab = r.ability;
+    const abHtml = ab ? `<div class="ability-pip${ab.used?' used':''}">${ab.icon} ${ab.label}${ab.used?' ✓':''}</div>` : '';
+    container.innerHTML += `
+      <div class="player-chip ${isActive?'active-turn':''} ${isDone?'done-turn':''}" id="chip-${ri}">
+        <div class="player-dot" style="background:${r.color};margin-top:5px;"></div>
+        <div>
+          <div class="player-name-line" style="color:${r.color}">${r.name}</div>
+          <div class="player-title-line">${r.title}</div>
+          ${abHtml}
+        </div>
+        <span class="turn-arrow">▶ NOW</span>
+      </div>`;
+  });
+}
+
+function updateMeters() {
+  if (!state.meters) return;
+  const total = Object.values(state.meters).reduce((a,b)=>a+b,0);
+  ['equality','trust','freedom','solidarity'].forEach(k => {
+    const prev = state.meters[k];
+    const v = Math.max(0,Math.min(100,state.meters[k]));
+    state.meters[k] = v;
+    const fill = document.getElementById(`m-${k}`);
+    fill.style.width = v+'%';
+    document.getElementById(`mv-${k}`).textContent = Math.round(v);
+    // Flash meter track red if critically low
+    if (v < 25) {
+      fill.style.background = 'var(--danger)';
+      document.getElementById(`mv-${k}`).style.color = 'var(--danger)';
+    } else {
+      document.getElementById(`mv-${k}`).style.color = '';
+    }
+  });
+  document.getElementById('total-score-display').textContent = Math.round(total);
+}
+
+function addLog(text, type='neutral') {
+  const log = document.getElementById('event-log');
+  const div = document.createElement('div');
+  div.className = `log-entry ${type}`;
+  div.textContent = text;
+  log.prepend(div);
+}
+
+function updateUnlocksSidebar() {
+  const keys = Object.keys(state.unlocked);
+  const section = document.getElementById('unlocks-section');
+  const list = document.getElementById('unlocks-list');
+  if (keys.length === 0) { section.style.display='none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = '';
+  keys.forEach(k => {
+    const u = state.unlocked[k];
+    list.innerHTML += `<div class="unlock-chip"><span class="unlock-chip-icon">${u.icon}</span><span>${u.name}</span></div>`;
+  });
+}
+
+function showUnlockNotification(unlockKey, scenarioUnlocks) {
+  const def = scenarioUnlocks[unlockKey];
+  if (!def || state.unlocked[unlockKey]) return;
+  state.unlocked[unlockKey] = def;
+  updateUnlocksSidebar();
+  addLog(`🔓 UNLOCKED: ${def.name}`, 'unlock');
+  document.getElementById('unlock-icon').textContent = def.icon;
+  document.getElementById('unlock-title').textContent = `UNLOCKED: ${def.name.toUpperCase()}`;
+  document.getElementById('unlock-desc').textContent = def.desc;
+  const n = document.getElementById('unlock-notification');
+  n.classList.add('visible');
+  setTimeout(() => n.classList.remove('visible'), 5000);
+}
+
+// =====================================================================
+// SCENARIO LOADING
+// =====================================================================
+function loadScenario(scenarioId) {
+  const s = getScenarioById(scenarioId);
+  if (!s) { showEndScreen(); return; }
+
+  state.currentScenarioId = scenarioId;
+  state.playedScenarioIds.add(scenarioId);
+  state.choiceMade = false;
+  state.pendingChoice = null;
+  state.abilityMitigation = false;
+
+  document.getElementById('round-badge').textContent = `SCENARIO ${state.scenarioCount+1} / ${state.totalScenarios}`;
+  document.getElementById('location-tag').textContent = s.location;
+  document.getElementById('scenario-theme').textContent = s.theme;
+  document.getElementById('scenario-title').textContent = s.title;
+  document.getElementById('scenario-narrative').textContent = s.narrative;
+  document.getElementById('scenario-question').textContent = s.question;
+
+  // Unlock required tag
+  const urt = document.getElementById('unlock-required-tag');
+  if (s.requires) {
+    urt.style.display = 'block';
+    urt.textContent = '🔓 UNLOCKED SCENARIO — your earlier choices made this possible';
+  } else { urt.style.display = 'none'; }
+
+  // Active player
+  const ri = activeRoleIndex();
+  const r = ROLES[ri];
+  setActiveColor(r.color);
+  const av = document.getElementById('apb-avatar');
+  av.textContent = r.initial; av.style.borderColor = r.color; av.style.boxShadow = `0 0 12px ${r.color}`; av.style.color = r.color;
+  document.getElementById('apb-name').textContent = `${r.name} — ${r.title}`;
+  document.getElementById('apb-name').style.color = r.color;
+  // Pick perspective by scenario tag
+  const tag = s.tags[0];
+  document.getElementById('apb-perspective').textContent = r.perspective[tag] || '';
+
+  // Ability button
+  tryRenderAbilityButton(ri, s.tags);
+
+  renderSidebarPlayers();
+
+  // Teacher notes
+  if (s.teacher) {
+    document.getElementById('tn-goals').textContent = s.teacher.goals;
+    document.getElementById('tn-time').textContent = s.teacher.time;
+    document.getElementById('tn-concepts').textContent = s.teacher.concepts;
+    document.getElementById('tn-rubric').textContent = s.teacher.rubric;
+    document.getElementById('teacher-notes').classList.toggle('visible', state.teacherMode);
+  }
+
+  // Choices
+  const grid = document.getElementById('choices-grid');
+  grid.innerHTML = '';
+  s.choices.forEach((c,i) => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-letter">OPTION ${c.letter}</span>${c.text}`;
+    btn.onclick = () => selectChoice(i, btn);
+    grid.appendChild(btn);
+  });
+
+  // Discussion
+  document.getElementById('discussion-questions').innerHTML = s.discussion.map(q=>`<li>${q}</li>`).join('');
+
+  // Reset panels
+  document.getElementById('vote-panel').style.display = 'none';
+  document.getElementById('discussion-panel').style.display = 'block';
+  document.getElementById('unlock-notification').classList.remove('visible');
+  const op = document.getElementById('outcome-panel');
+  op.classList.remove('visible'); op.style.display = 'none';
+
+  document.getElementById('vote-instruction').textContent =
+    `${r.name} has proposed a choice. Talk it over as a group — then confirm your collective decision below.`;
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selectChoice(index, clickedBtn) {
+  if (state.choiceMade) return;
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  clickedBtn.classList.add('selected');
+  state.pendingChoice = index;
+  const vp = document.getElementById('vote-panel');
+  vp.style.display = 'block';
+  vp.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function confirmGroupChoice() {
+  if (state.pendingChoice === null || state.choiceMade) return;
+  state.choiceMade = true;
+
+  const s = getScenarioById(state.currentScenarioId);
+  const choice = s.choices[state.pendingChoice];
+  const ri = activeRoleIndex();
+  const r = ROLES[ri];
+
+  // Reveal
+  document.querySelectorAll('.choice-btn').forEach((b,i) => {
+    b.onclick = null;
+    if (i === state.pendingChoice) {
+      b.classList.remove('selected');
+      b.classList.add(choice.quality === 'bad' ? 'revealed-bad' : 'revealed-good');
+    }
+  });
+
+  // Apply scores — with Luca's mitigation if active
+  let pts = 0;
+  const appliedScore = {};
+  Object.entries(choice.score).forEach(([k,v]) => {
+    let val = v;
+    // Luca's ability: halve negative scores on infrastructure scenarios
+    if (state.abilityMitigation && v < 0 && s.tags.includes('infrastructure')) {
+      val = Math.ceil(v / 2);
+    }
+    appliedScore[k] = val;
+    state.meters[k] = (state.meters[k]||0) + val;
+    if (val > 0) pts += val;
+  });
+  state.playerScores[ri] = (state.playerScores[ri]||0) + pts;
+  updateMeters();
+
+  // Record history
+  state.history.push({
+    scenarioId: s.id,
+    scenarioTitle: s.title,
+    roleId: ri,
+    roleName: r.name,
+    choiceLetter: choice.letter,
+    quality: choice.quality,
+    metersAfter: {...state.meters},
+    timestamp: Date.now()
+  });
+
+  const logType = choice.quality==='bad'?'bad':choice.quality==='mixed'?'neutral':'good';
+  addLog(`[${r.name}] "${s.title}" → Option ${choice.letter}`, logType);
+
+  // Handle unlock
+  if (choice.unlock && s.unlocks && s.unlocks[choice.unlock]) {
+    setTimeout(() => showUnlockNotification(choice.unlock, s.unlocks), 600);
+  }
+
+  // Outcome
+  const op = document.getElementById('outcome-panel');
+  op.style.display = 'block';
+  setTimeout(() => op.classList.add('visible'), 10);
+
+  const oh = document.getElementById('outcome-header');
+  let outcomeText;
+  if (choice.quality==='bad') {
+    oh.textContent='✗ The Weight of Inaction'; oh.className='outcome-header bad';
+    outcomeText = s.outcomes.bad || s.outcomes.good;
+  } else if (choice.quality==='mixed') {
+    oh.textContent='◆ A Complicated Path'; oh.className='outcome-header mixed';
+    outcomeText = s.outcomes.mixed || s.outcomes.good;
+  } else {
+    oh.textContent='✓ A Step Forward'; oh.className='outcome-header good';
+    outcomeText = s.outcomes.good;
+  }
+  document.getElementById('outcome-text').textContent = outcomeText;
+
+  // Score tags (show applied score, not original)
+  document.getElementById('score-change').innerHTML = Object.entries(appliedScore).map(([k,v]) =>
+    `<span class="score-tag ${v>0?'pos':'neg'}">${k.toUpperCase()} ${v>0?'+':''}${v}${state.abilityMitigation&&choice.quality==='bad'?' (mitigated)':''}</span>`
+  ).join('');
+
+  // Meter narrative micro-lines
+  const meterNarrative = {
+    equality: {up:"A small balance is restored.", down:"The gap widens a little more."},
+    trust:    {up:"A neighbour whispers your name to someone they trust.", down:"People speak less openly today."},
+    freedom:  {up:"Someone breathes a little easier.", down:"Another door closes quietly."},
+    solidarity:{up:"The group holds a little tighter.", down:"People retreat inward."}
+  };
+  const narLines = Object.entries(appliedScore)
+    .filter(([k,v]) => Math.abs(v) >= 6 && meterNarrative[k])
+    .map(([k,v]) => `<span style="color:${v>0?'var(--accent3)':'var(--danger)'}">${meterNarrative[k][v>0?'up':'down']}</span>`)
+    .join(' ');
+  const narEl = document.getElementById('meter-narrative');
+  if (narEl) { narEl.innerHTML = narLines; narEl.style.display = narLines ? 'block' : 'none'; }
+
+  // Micro narrative feedback
+  const mf = document.getElementById('micro-feedback');
+  if (s.microFeedback) {
+    const fb = choice.quality==='bad' ? s.microFeedback.bad : choice.quality==='mixed' ? s.microFeedback.mixed : s.microFeedback.good;
+    if (fb) {
+      mf.textContent = `— ${fb}`;
+      mf.className = `micro-feedback ${choice.quality==='bad'?'neg':'pos'}`;
+      mf.style.display = 'block';
+    } else { mf.style.display='none'; }
+  } else { mf.style.display='none'; }
+
+  // Next button
+  const isLast = state.scenarioCount >= state.totalScenarios - 1;
+  let nextLabel;
+  if (isLast) {
+    nextLabel = 'SEE YOUR RESULTS →';
+  } else {
+    const nextSlot = (state.scenarioCount + 1) % state.teamOrder.length;
+    const nextRi = state.teamOrder[nextSlot];
+    const nextR = ROLES[nextRi];
+    nextLabel = `NEXT: ${nextR.name}'S TURN →`;
+  }
+  document.getElementById('outcome-actions').innerHTML =
+    `<button class="btn" onclick="nextScenario()">${nextLabel}</button>`;
+
+  document.getElementById('vote-panel').style.display = 'none';
+  op.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function nextScenario() {
+  state.scenarioCount++;
+  if (state.scenarioCount >= state.totalScenarios) {
+    showEndScreen();
+  } else {
+    const nextId = chooseNextScenario();
+    if (nextId === null) showEndScreen();
+    else loadScenario(nextId);
+  }
+}
+
+// =====================================================================
+// END SCREEN
+// =====================================================================
+function showEndScreen() {
+  document.getElementById('screen-game').style.display = 'none';
+  const end = document.getElementById('screen-end');
+  end.style.display = 'flex';
+  setActiveColor('#c8933a');
+
+  const total = Object.values(state.meters).reduce((a,b)=>a+b,0);
+  const pct = total/400;
+
+  let verdict, subtitle, reflection;
+  if (pct >= 0.72) {
+    verdict="NOVARA RISES"; subtitle="Your choices built something worth fighting for.";
+    document.getElementById('end-verdict').style.color='var(--accent3)';
+    reflection="Your team proved that equality, trust, freedom and solidarity are not ideals — they are choices made daily, in small moments and large ones alike. The branching path you walked was shaped by your values as much as by chance. Each player brought their own lens to the struggle. Together, you gave Novara something it hadn't had in years: hope backed by action.";
+  } else if (pct >= 0.48) {
+    verdict="A FRAGILE DAWN"; subtitle="Progress was made — but the struggle continues.";
+    document.getElementById('end-verdict').style.color='var(--accent)';
+    reflection="Some choices lit the path forward. Others were clouded by fear or self-interest. The scenarios you encountered were shaped by the consequences of your earlier decisions — and so were the ones you never saw. Novara holds on. Barely. The next group will need to build on what you've started.";
+  } else {
+    verdict="THE SILENCE DEEPENS"; subtitle="Fear won more battles than courage today.";
+    document.getElementById('end-verdict').style.color='var(--danger)';
+    reflection="The Bureau didn't need to arrest anyone today. It only needed your team to stay quiet. Injustice survives not through the cruelty of its enforcers alone, but through the inaction of those who know better. Notice that the path the game chose for you was shaped by your choices — low meters drew harder scenarios. Novara will need to try again.";
+  }
+
+  document.getElementById('end-verdict').textContent = verdict;
+  document.getElementById('end-subtitle').textContent = subtitle;
+
+  const colors={equality:'var(--accent)',trust:'var(--accent2)',freedom:'#9a7ac8',solidarity:'var(--accent3)'};
+  document.getElementById('end-score-grid').innerHTML =
+    Object.entries(state.meters).map(([k,v],i)=>
+      `<div class="end-score-card" style="animation-delay:${i*0.1}s;border-top:2px solid ${colors[k]}">
+        <div class="label">${k.toUpperCase()}</div>
+        <div class="val" style="color:${colors[k]}">${Math.round(v)}</div>
+      </div>`
+    ).join('') +
+    `<div class="end-score-card" style="grid-column:1/-1;border-top:2px solid var(--text-bright)">
+      <div class="label">TOTAL SOCIETY HEALTH</div>
+      <div class="val" style="color:var(--text-bright);font-size:2rem">${Math.round(total)} <span style="font-size:0.82rem;color:var(--text-dim)">/ 400</span></div>
+    </div>`;
+
+  document.getElementById('end-player-scores').innerHTML = state.teamOrder.map((ri,i)=>{
+    const r=ROLES[ri]; const sc=state.playerScores[ri]||0;
+    const ab = r.ability;
+    const abTag = ab ? `<span style="font-size:0.62rem;color:${ab.used?'var(--accent3)':'var(--text-dim)'}"> ${ab.icon}${ab.used?' used':' unused'}</span>` : '';
+    return `<div class="eps-row" style="animation-delay:${i*0.12}s;border-left:3px solid ${r.color}">
+      <span class="eps-name" style="color:${r.color}">${r.name}${abTag}</span>
+      <span class="eps-score" style="color:${r.color}">+${sc} pts</span>
+    </div>`;
+  }).join('');
+
+  // Unlocks
+  const unlockedKeys = Object.keys(state.unlocked);
+  if (unlockedKeys.length > 0) {
+    document.getElementById('end-unlocks-section').style.display = 'block';
+    document.getElementById('end-unlocks').innerHTML = unlockedKeys.map(k => {
+      const u = state.unlocked[k];
+      return `<div class="end-unlock-row"><span style="font-size:1.2rem">${u.icon}</span><div><div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--accent3)">${u.name}</div><div style="font-size:0.82rem;color:var(--text-dim);font-style:italic">${u.desc}</div></div></div>`;
+    }).join('');
+  }
+
+  // Scenario path history
+  const pathLines = state.history.map(h =>
+    `<li style="font-size:0.82rem;color:var(--text-dim);margin-bottom:4px;list-style:none;padding-left:14px;position:relative;">
+      <span style="position:absolute;left:0;color:${h.quality==='bad'?'var(--danger)':h.quality==='mixed'?'var(--accent)':'var(--accent3)'}">▸</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--text-dim)">${ROLES[h.roleId].name}</span> — ${h.scenarioTitle}: Option ${h.choiceLetter}
+    </li>`
+  ).join('');
+
+  document.getElementById('end-reflection').innerHTML = `
+    <h3>// DEBRIEF</h3>
+    <p>${reflection}</p>
+    <p style="margin-top:12px">Discuss as a group: Whose turn were you most proud of? Which decision would you change, and why? Did anyone use their special ability — did it change anything?</p>
+    ${unlockedKeys.length > 0 ? `<p style="margin-top:12px;color:var(--accent3)">Your group unlocked <strong>${unlockedKeys.length} asset${unlockedKeys.length>1?'s':''}</strong> through your choices — did any of those open new scenarios?</p>` : ''}
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--text-dim);letter-spacing:0.18em;margin-bottom:10px;">// YOUR PATH THROUGH NOVARA</div>
+      <ul>${pathLines}</ul>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--accent2);letter-spacing:0.18em;margin-bottom:8px;">// REFLECTION QUESTIONS FOR YOUR GROUP</div>
+      <ol style="list-style:decimal;padding-left:18px;display:flex;flex-direction:column;gap:7px;">
+        <li style="font-size:0.86rem;color:var(--text-dim);line-height:1.6;">Which scenario felt the most personally challenging — and why?</li>
+        <li style="font-size:0.86rem;color:var(--text-dim);line-height:1.6;">How did your character's background shape the choices you made on your turn?</li>
+        <li style="font-size:0.86rem;color:var(--text-dim);line-height:1.6;">Were there moments where the group disagreed? How did you reach a decision?</li>
+        <li style="font-size:0.86rem;color:var(--text-dim);line-height:1.6;">How do the scenarios in Novara connect to things happening in the real world today?</li>
+        <li style="font-size:0.86rem;color:var(--text-dim);line-height:1.6;">If you played again, what would you do differently — and why?</li>
+      </ol>
+    </div>`;
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+updateMeters();
+</script>
+</body>
+</html>
